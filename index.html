@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ÉCLIPSE — Modern Essentials</title>
+<title>DSMD — Modern Essentials</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -49,13 +49,23 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   border-bottom:1px solid var(--line);
 }
 .brand{
-  font-family:var(--serif);
-  font-size:22px;
-  font-weight:600;
-  letter-spacing:.02em;
-  font-style:italic;
+  font-family:var(--sans);
+  font-size:20px;
+  font-weight:700;
+  letter-spacing:.32em;
+  color:var(--ink);
+  display:inline-flex;align-items:center;
+  padding-right:2px;
+  position:relative;
 }
-.brand span{color:var(--accent)}
+.brand::after{
+  content:'';
+  display:inline-block;
+  width:5px;height:5px;border-radius:50%;
+  background:var(--accent);
+  margin-left:4px;
+  margin-bottom:-14px;
+}
 .nav-links{display:flex;gap:38px;font-size:13px;font-weight:500;letter-spacing:.05em;text-transform:uppercase}
 .nav-links a{position:relative;padding:4px 0}
 .nav-links a::after{
@@ -187,7 +197,6 @@ section{padding:100px 40px}
 .collection{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
 .card{
   cursor:pointer;
-  group:card;
 }
 .card-img{
   aspect-ratio:3/4;overflow:hidden;border-radius:6px;background:#e5e0d6;
@@ -336,10 +345,14 @@ footer{
   padding-bottom:60px;border-bottom:1px solid rgba(246,244,239,.12);
 }
 .footer-brand h3{
-  font-family:var(--serif);font-size:34px;font-weight:400;font-style:italic;
-  margin-bottom:16px;
+  font-family:var(--sans);font-size:26px;font-weight:700;
+  letter-spacing:.32em;margin-bottom:20px;
+  display:inline-flex;align-items:center;
 }
-.footer-brand h3 span{color:var(--accent);font-style:normal}
+.footer-brand h3::after{
+  content:'';display:inline-block;width:5px;height:5px;border-radius:50%;
+  background:var(--accent);margin-left:4px;margin-bottom:-12px;
+}
 .footer-brand p{color:rgba(246,244,239,.55);max-width:280px;font-size:13px;line-height:1.7}
 .footer-col h4{
   font-size:11px;letter-spacing:.18em;text-transform:uppercase;
@@ -398,6 +411,7 @@ footer{
   footer{padding:60px 20px 30px}
   .footer-grid{grid-template-columns:1fr;gap:32px}
   .hero h1{font-size:clamp(48px,15vw,80px)}
+  .brand{font-size:17px;letter-spacing:.28em}
 }
 </style>
 </head>
@@ -405,7 +419,7 @@ footer{
 
 <!-- NAV -->
 <nav class="nav" id="nav">
-  <a href="#" class="brand">ÉCLIPSE<span>.</span></a>
+  <a href="#" class="brand">DSMD</a>
   <div class="nav-links">
     <a href="#shop">Shop</a>
     <a href="#collection">Collection</a>
@@ -561,7 +575,7 @@ footer{
     <span class="tag reveal">Behind the Seams</span>
     <h2 class="reveal">Made by hands<br>that <em>care.</em></h2>
     <p class="reveal">
-      Every ÉCLIPSE piece begins in our Jakarta atelier — where six craftspeople spend
+      Every DSMD piece begins in our Jakarta atelier — where six craftspeople spend
       days shaping fabric that most brands would mass-produce in hours. We don't chase
       trends. We chase the feeling of a garment that fits the life you already live.
     </p>
@@ -639,7 +653,7 @@ footer{
 <footer>
   <div class="footer-grid">
     <div class="footer-brand">
-      <h3>ÉCLIPSE<span>.</span></h3>
+      <h3>DSMD</h3>
       <p>Slow fashion for fast lives. Considered garments crafted in small batches since 2019.</p>
     </div>
     <div class="footer-col">
@@ -665,7 +679,7 @@ footer{
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2026 ÉCLIPSE Atelier. Made with intention in Jakarta.</span>
+    <span>© 2026 DSMD Atelier. Made with intention in Jakarta.</span>
     <div class="socials">
       <a href="#" aria-label="Instagram">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor"/></svg>

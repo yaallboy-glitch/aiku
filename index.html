@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DSMD — Modern Essentials</title>
+<title>DSMD — WAR DROP | Anak Jogja, Untuk Semua</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 
@@ -16,8 +16,10 @@
   --muted:#8a857e;
   --line:#e2ded6;
   --accent:#c8553d;
+  --accent-soft:#e8b4a0;
   --serif:'Fraunces',Georgia,serif;
   --sans:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
 }
 
 html{scroll-behavior:smooth}
@@ -29,147 +31,301 @@ body{
   line-height:1.55;
   overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
+  padding-top:38px; /* space for ticker */
 }
 
 img{display:block;max-width:100%;height:auto}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 
+/* ============ ANNOUNCEMENT TICKER ============ */
+.ticker{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:var(--ink);color:var(--bg);
+  height:38px;overflow:hidden;
+  display:flex;align-items:center;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.ticker-track{
+  display:flex;gap:56px;white-space:nowrap;
+  animation:tickerMove 32s linear infinite;
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;
+}
+.ticker-track span{display:flex;align-items:center;gap:56px;flex-shrink:0}
+.ticker-track span::after{content:'✦';color:var(--accent);font-size:10px}
+.ticker-track b{color:var(--accent-soft);font-weight:600}
+@keyframes tickerMove{to{transform:translateX(-50%)}}
+
 /* ============ NAV ============ */
 .nav{
-  position:fixed;top:0;left:0;right:0;z-index:100;
-  padding:22px 40px;
+  position:fixed;top:38px;left:0;right:0;z-index:100;
+  padding:20px 40px;
   display:flex;align-items:center;justify-content:space-between;
-  transition:background .3s, padding .3s, backdrop-filter .3s;
+  transition:background .3s, padding .3s, backdrop-filter .3s, top .3s;
 }
 .nav.scrolled{
-  padding:14px 40px;
-  background:rgba(246,244,239,.85);
+  padding:12px 40px;
+  background:rgba(246,244,239,.88);
   backdrop-filter:blur(14px);
   border-bottom:1px solid var(--line);
 }
 .brand{
-  font-family:var(--sans);
-  font-size:20px;
-  font-weight:700;
+  font-size:20px;font-weight:700;
   letter-spacing:.32em;
-  color:var(--ink);
   display:inline-flex;align-items:center;
-  padding-right:2px;
   position:relative;
 }
 .brand::after{
-  content:'';
-  display:inline-block;
+  content:'';display:inline-block;
   width:5px;height:5px;border-radius:50%;
-  background:var(--accent);
-  margin-left:4px;
-  margin-bottom:-14px;
+  background:var(--accent);margin-left:4px;margin-bottom:-14px;
 }
-.nav-links{display:flex;gap:38px;font-size:13px;font-weight:500;letter-spacing:.05em;text-transform:uppercase}
-.nav-links a{position:relative;padding:4px 0}
+.nav-links{display:flex;gap:34px;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.nav-links a{position:relative;padding:4px 0;color:var(--muted);transition:color .2s}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a.active{color:var(--ink)}
 .nav-links a::after{
   content:'';position:absolute;left:0;bottom:0;width:0;height:1px;
-  background:var(--ink);transition:width .3s ease;
+  background:var(--accent);transition:width .3s ease;
 }
-.nav-links a:hover::after{width:100%}
-.nav-actions{display:flex;gap:18px;align-items:center;font-size:13px;font-weight:500}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%}
+.nav-actions{display:flex;gap:14px;align-items:center;font-size:12px}
+.war-live{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;border-radius:100px;
+  background:rgba(200,85,61,.1);color:var(--accent);
+  font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+}
+.war-live::before{
+  content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);
+  animation:pulseDot 1.2s ease-in-out infinite;
+}
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
 .cart-btn{
   display:flex;align-items:center;gap:8px;
-  padding:8px 16px;border:1px solid var(--ink);border-radius:100px;
+  padding:8px 14px;border:1px solid var(--ink);border-radius:100px;
   transition:background .25s,color .25s;
 }
 .cart-btn:hover{background:var(--ink);color:var(--bg)}
 .cart-count{
-  background:var(--accent);color:#fff;font-size:10px;font-weight:600;
+  background:var(--accent);color:#fff;font-size:10px;font-weight:700;
   width:18px;height:18px;border-radius:50%;
   display:inline-flex;align-items:center;justify-content:center;
 }
-.menu-toggle{display:none;font-size:24px}
+.menu-toggle{display:none;font-size:22px}
+
+/* ============ GRAIN OVERLAY (abstract texture) ============ */
+.grain{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  opacity:.35;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.5 0 0 0 0 0.46 0 0 0 .35 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Abstract decorative shapes */
+.blob{
+  position:absolute;border-radius:50%;
+  filter:blur(70px);opacity:.5;pointer-events:none;z-index:0;
+}
+.blob-a{width:420px;height:420px;background:#e8b4a0;top:-120px;left:-140px}
+.blob-b{width:340px;height:340px;background:#e2ded6;bottom:-100px;right:-100px}
 
 /* ============ HERO ============ */
 .hero{
-  min-height:100vh;
-  padding:140px 40px 60px;
+  min-height:calc(100vh - 38px);
+  padding:130px 40px 60px;
   display:grid;
-  grid-template-columns:1.15fr 1fr;
-  gap:60px;
-  align-items:end;
+  grid-template-columns:1.05fr 1fr;
+  gap:70px;
+  align-items:center;
   position:relative;
+  overflow:hidden;
 }
+.hero-text{position:relative;z-index:2}
 .hero-text .tag{
-  display:inline-block;
-  font-size:11px;letter-spacing:.22em;text-transform:uppercase;
-  color:var(--muted);margin-bottom:28px;
-  padding-left:38px;position:relative;
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:26px;font-weight:600;
+  padding:8px 14px;border-radius:100px;
+  background:rgba(200,85,61,.08);border:1px solid rgba(200,85,61,.18);
 }
 .hero-text .tag::before{
-  content:'';position:absolute;left:0;top:50%;width:28px;height:1px;background:var(--accent);
+  content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);
+  animation:pulseDot 1.2s ease-in-out infinite;
 }
 .hero h1{
   font-family:var(--serif);
-  font-size:clamp(56px,9vw,148px);
-  font-weight:400;
-  line-height:.92;
+  font-size:clamp(48px,7.5vw,120px);
+  font-weight:400;line-height:.94;
   letter-spacing:-.035em;
-  margin-bottom:36px;
+  margin-bottom:30px;
 }
 .hero h1 em{font-style:italic;color:var(--accent);font-weight:500}
-.hero-sub{
-  max-width:420px;
-  font-size:15px;color:var(--muted);line-height:1.7;
-  margin-bottom:44px;
+.hero h1 .strike{
+  position:relative;display:inline-block;
 }
-.hero-cta{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.hero h1 .strike::after{
+  content:'';position:absolute;left:-4px;right:-4px;top:52%;height:6px;
+  background:var(--accent);transform:rotate(-2deg);opacity:.85;
+}
+.hero-sub{
+  max-width:460px;font-size:15.5px;color:var(--muted);
+  line-height:1.7;margin-bottom:44px;
+}
+.hero-sub b{color:var(--ink);font-weight:600}
+.hero-cta{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+
 .btn-primary{
   background:var(--ink);color:var(--bg);
-  padding:16px 34px;border-radius:100px;
-  font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
-  display:inline-flex;align-items:center;gap:12px;
+  padding:17px 30px;border-radius:100px;
+  font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  display:inline-flex;align-items:center;gap:10px;
   transition:transform .3s cubic-bezier(.2,.9,.3,1.2), background .25s;
 }
 .btn-primary:hover{transform:translateY(-3px);background:var(--accent)}
 .btn-primary svg{transition:transform .3s}
 .btn-primary:hover svg{transform:translateX(4px)}
 .btn-ghost{
-  font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
-  padding:16px 8px;position:relative;
+  font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  padding:17px 8px;position:relative;color:var(--ink);
 }
 .btn-ghost::after{
-  content:'';position:absolute;left:8px;right:8px;bottom:12px;height:1px;background:var(--ink);
+  content:'';position:absolute;left:8px;right:8px;bottom:13px;height:1px;background:var(--ink);
   transform-origin:left;transition:transform .3s;
 }
 .btn-ghost:hover::after{transform:scaleX(1.15)}
 
+/* ============ COUNTDOWN (the star) ============ */
+.countdown-wrap{
+  position:relative;
+  margin-top:52px;
+  padding:26px 28px;
+  border-radius:20px;
+  background:linear-gradient(160deg,#fbfaf7,#f0ece4);
+  border:1px solid var(--line);
+  box-shadow:0 20px 50px -30px rgba(14,14,14,.2);
+  overflow:hidden;
+}
+.countdown-wrap::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+}
+.countdown-label{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:18px;flex-wrap:wrap;gap:10px;
+}
+.countdown-label .title{
+  font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  font-weight:600;color:var(--ink);
+  display:flex;align-items:center;gap:8px;
+}
+.countdown-label .title i{
+  font-style:normal;color:var(--accent);font-size:14px;
+}
+.countdown-label .sub{
+  font-size:11px;color:var(--muted);letter-spacing:.05em;
+}
+.countdown{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+}
+.cd-box{
+  background:var(--bg);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:14px 6px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.cd-box::after{
+  content:'';position:absolute;left:0;right:0;top:50%;height:1px;
+  background:var(--line);opacity:.6;
+}
+.cd-num{
+  font-family:var(--mono);
+  font-size:clamp(28px,4.5vw,44px);
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-.02em;
+  line-height:1;
+  display:block;
+  font-variant-numeric:tabular-nums;
+  position:relative;z-index:1;
+}
+.cd-lbl{
+  font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);margin-top:8px;display:block;font-weight:600;
+  position:relative;z-index:1;
+}
+.cd-box.sec .cd-num{color:var(--accent)}
+.cd-box.sec{animation:secPulse 1s ease-in-out infinite}
+@keyframes secPulse{
+  0%,100%{border-color:var(--line)}
+  50%{border-color:rgba(200,85,61,.4)}
+}
+.countdown-foot{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:18px;padding-top:16px;border-top:1px dashed var(--line);
+  font-size:11px;color:var(--muted);flex-wrap:wrap;gap:10px;
+}
+.countdown-foot b{color:var(--ink);font-weight:600}
+.war-ready{
+  display:inline-flex;align-items:center;gap:6px;
+  color:var(--accent);font-weight:600;
+  font-size:11px;letter-spacing:.06em;
+}
+
+/* ============ HERO VISUAL ============ */
 .hero-visual{
   position:relative;
+  z-index:2;
   aspect-ratio:4/5;
-  border-radius:8px;
+  border-radius:14px;
   overflow:hidden;
   background:#ddd8cd;
+  box-shadow:0 30px 70px -40px rgba(14,14,14,.35);
 }
 .hero-visual img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.2,.9,.3,1)}
 .hero-visual:hover img{transform:scale(1.05)}
 .hero-badge{
-  position:absolute;top:24px;right:24px;
-  background:var(--bg);color:var(--ink);
-  padding:12px 18px;border-radius:100px;
-  font-size:11px;letter-spacing:.15em;text-transform:uppercase;font-weight:500;
+  position:absolute;top:20px;left:20px;
+  background:var(--accent);color:#fff;
+  padding:8px 14px;border-radius:100px;
+  font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:600;
+  display:flex;align-items:center;gap:6px;
+}
+.hero-badge::before{
+  content:'';width:6px;height:6px;border-radius:50%;background:#fff;
+  animation:pulseDot 1.2s ease-in-out infinite;
 }
 .hero-caption{
-  position:absolute;bottom:24px;left:24px;right:24px;
+  position:absolute;bottom:20px;left:20px;right:20px;
   display:flex;justify-content:space-between;align-items:center;
-  color:#fff;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:#fff;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  padding:14px 16px;border-radius:12px;
+  background:rgba(0,0,0,.35);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.12);
+}
+.hero-caption .stock{
+  display:flex;align-items:center;gap:8px;
+  font-weight:600;
+}
+.stock-bar{
+  width:60px;height:4px;border-radius:2px;background:rgba(255,255,255,.2);
+  overflow:hidden;
+}
+.stock-bar i{
+  display:block;height:100%;width:32%;
+  background:linear-gradient(90deg,var(--accent),var(--accent-soft));
+  border-radius:2px;
 }
 
 /* ============ MARQUEE ============ */
 .marquee{
   border-top:1px solid var(--line);border-bottom:1px solid var(--line);
   padding:22px 0;overflow:hidden;
-  display:flex;gap:60px;
-  white-space:nowrap;
+  display:flex;gap:60px;white-space:nowrap;
   font-family:var(--serif);font-size:22px;font-style:italic;
-  color:var(--muted);
+  color:var(--muted);position:relative;z-index:2;
 }
 .marquee-track{
   display:flex;gap:60px;
@@ -180,123 +336,181 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 @keyframes marquee{to{transform:translateX(-50%)}}
 
 /* ============ SECTIONS ============ */
-section{padding:100px 40px}
+section{padding:100px 40px;position:relative;z-index:2}
 .section-head{
   display:flex;justify-content:space-between;align-items:end;
   margin-bottom:56px;gap:40px;flex-wrap:wrap;
 }
 .section-head h2{
   font-family:var(--serif);
-  font-size:clamp(40px,5.5vw,72px);
+  font-size:clamp(38px,5.5vw,72px);
   font-weight:400;line-height:1;letter-spacing:-.03em;
 }
 .section-head h2 em{font-style:italic;color:var(--accent)}
-.section-head p{color:var(--muted);max-width:380px;font-size:14px}
+.section-head p{color:var(--muted);max-width:400px;font-size:14px;line-height:1.7}
+.section-head p b{color:var(--ink);font-weight:600}
+
+/* ============ WAR STATS ============ */
+.war-stats{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
+  padding:32px;border-radius:20px;
+  background:var(--ink);color:var(--bg);
+  margin-bottom:70px;position:relative;overflow:hidden;
+}
+.war-stats::before{
+  content:'';position:absolute;top:-40%;right:-10%;width:340px;height:340px;
+  border-radius:50%;background:var(--accent);filter:blur(80px);opacity:.25;
+}
+.war-stats .stat{position:relative;z-index:1}
+.war-stats .stat b{
+  font-family:var(--mono);font-size:clamp(28px,3.5vw,42px);
+  font-weight:700;display:block;line-height:1;letter-spacing:-.02em;
+  color:var(--bg);font-variant-numeric:tabular-nums;
+}
+.war-stats .stat b span{color:var(--accent-soft)}
+.war-stats .stat span{
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(246,244,239,.5);display:block;margin-top:10px;font-weight:500;
+}
 
 /* ============ COLLECTION GRID ============ */
-.collection{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
-.card{
-  cursor:pointer;
-}
+.collection{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.card{cursor:pointer;position:relative}
 .card-img{
-  aspect-ratio:3/4;overflow:hidden;border-radius:6px;background:#e5e0d6;
+  aspect-ratio:3/4;overflow:hidden;border-radius:10px;background:#e5e0d6;
   position:relative;
 }
 .card-img img{width:100%;height:100%;object-fit:cover;transition:transform .9s cubic-bezier(.2,.9,.3,1)}
 .card:hover .card-img img{transform:scale(1.06)}
-.card-tag{
-  position:absolute;top:16px;left:16px;
-  background:var(--bg);padding:6px 12px;border-radius:100px;
-  font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:500;
+.card-img::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.4),transparent 45%);
+  opacity:0;transition:opacity .3s;
 }
-.card-tag.new{background:var(--accent);color:#fff}
+.card:hover .card-img::after{opacity:1}
+
+.card-tag{
+  position:absolute;top:14px;left:14px;z-index:2;
+  background:var(--bg);color:var(--ink);
+  padding:6px 11px;border-radius:100px;
+  font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;
+}
+.card-tag.war{background:var(--accent);color:#fff;display:flex;align-items:center;gap:5px}
+.card-tag.war::before{
+  content:'';width:5px;height:5px;border-radius:50%;background:#fff;
+  animation:pulseDot 1s ease-in-out infinite;
+}
+.card-stock{
+  position:absolute;top:14px;right:14px;z-index:2;
+  background:rgba(14,14,14,.7);color:#fff;
+  padding:5px 10px;border-radius:100px;
+  font-size:9.5px;letter-spacing:.1em;font-weight:600;
+  font-family:var(--mono);font-variant-numeric:tabular-nums;
+  backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.15);
+}
+.card-stock.low{background:rgba(200,85,61,.85);border-color:rgba(255,255,255,.25)}
 .card-quick{
-  position:absolute;left:16px;right:16px;bottom:16px;
-  background:var(--ink);color:var(--bg);
-  padding:12px;border-radius:100px;text-align:center;
-  font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;
-  transform:translateY(120%);opacity:0;
-  transition:transform .35s cubic-bezier(.2,.9,.3,1), opacity .3s;
+  position:absolute;left:14px;right:14px;bottom:14px;z-index:2;
+  background:var(--bg);color:var(--ink);
+  padding:13px;border-radius:100px;text-align:center;
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;
+  transform:translateY(130%);opacity:0;
+  transition:transform .35s cubic-bezier(.2,.9,.3,1), opacity .3s, background .2s, color .2s;
 }
 .card:hover .card-quick{transform:translateY(0);opacity:1}
+.card-quick:hover{background:var(--accent);color:#fff}
+.card-quick.sold{
+  background:var(--ink);color:var(--bg);
+  pointer-events:none;
+}
 .card-info{
   display:flex;justify-content:space-between;align-items:start;
   padding-top:16px;gap:16px;
 }
 .card-info h3{
   font-family:var(--serif);font-size:19px;font-weight:400;
-  letter-spacing:-.01em;margin-bottom:2px;
+  letter-spacing:-.01em;margin-bottom:3px;
 }
-.card-info .desc{font-size:12px;color:var(--muted);letter-spacing:.03em}
-.card-price{font-size:14px;font-weight:500;white-space:nowrap;padding-top:2px}
+.card-info .desc{font-size:11.5px;color:var(--muted);letter-spacing:.03em}
+.card-price{
+  font-size:14px;font-weight:600;white-space:nowrap;padding-top:2px;
+  font-variant-numeric:tabular-nums;
+}
+.card-price .cur{font-size:10px;color:var(--muted);font-weight:500;margin-right:2px}
 
 /* ============ EDITORIAL SPLIT ============ */
 .editorial{
   padding:0;background:var(--ink);color:var(--bg);
   display:grid;grid-template-columns:1fr 1fr;
+  position:relative;z-index:2;
 }
 .editorial-media{position:relative;overflow:hidden;min-height:640px}
 .editorial-media img{width:100%;height:100%;object-fit:cover}
+.editorial-media::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(120deg,rgba(200,85,61,.15),transparent 50%);
+  mix-blend-mode:overlay;
+}
 .editorial-content{
   padding:100px 60px;
   display:flex;flex-direction:column;justify-content:center;
 }
 .editorial-content .tag{
-  font-size:11px;letter-spacing:.22em;text-transform:uppercase;
-  color:rgba(246,244,239,.5);margin-bottom:24px;
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--accent-soft);margin-bottom:24px;font-weight:600;
 }
 .editorial-content h2{
-  font-family:var(--serif);font-size:clamp(36px,4.5vw,60px);
-  font-weight:400;line-height:1.02;letter-spacing:-.02em;
-  margin-bottom:28px;
+  font-family:var(--serif);font-size:clamp(34px,4.3vw,58px);
+  font-weight:400;line-height:1.04;letter-spacing:-.02em;margin-bottom:26px;
 }
-.editorial-content h2 em{font-style:italic;color:#e8b4a0}
+.editorial-content h2 em{font-style:italic;color:var(--accent-soft)}
 .editorial-content p{
   color:rgba(246,244,239,.7);line-height:1.75;font-size:15px;
-  max-width:440px;margin-bottom:40px;
+  max-width:460px;margin-bottom:40px;
 }
+.editorial-content p b{color:var(--bg);font-weight:600}
 .editorial-stats{
-  display:flex;gap:56px;margin-top:48px;padding-top:44px;
+  display:flex;gap:52px;margin-top:44px;padding-top:40px;
   border-top:1px solid rgba(246,244,239,.15);
 }
 .editorial-stats .stat b{
-  font-family:var(--serif);font-size:44px;font-weight:400;
-  display:block;letter-spacing:-.02em;line-height:1;
+  font-family:var(--mono);font-size:38px;font-weight:700;
+  display:block;letter-spacing:-.02em;line-height:1;color:var(--bg);
 }
+.editorial-stats .stat b span{color:var(--accent-soft)}
 .editorial-stats .stat span{
-  font-size:11px;letter-spacing:.15em;text-transform:uppercase;
-  color:rgba(246,244,239,.5);display:block;margin-top:8px;
+  font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(246,244,239,.5);display:block;margin-top:8px;font-weight:500;
 }
 .btn-light{
   background:var(--bg);color:var(--ink);
-  padding:16px 34px;border-radius:100px;
-  font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
-  display:inline-flex;align-items:center;gap:12px;align-self:flex-start;
+  padding:16px 30px;border-radius:100px;
+  font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  display:inline-flex;align-items:center;gap:10px;align-self:flex-start;
   transition:transform .3s cubic-bezier(.2,.9,.3,1.2), background .25s;
 }
-.btn-light:hover{transform:translateY(-3px);background:#e8b4a0}
+.btn-light:hover{transform:translateY(-3px);background:var(--accent-soft)}
 
 /* ============ LOOKBOOK ============ */
 .lookbook{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  grid-auto-rows:220px;
-  gap:16px;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  grid-auto-rows:220px;gap:14px;
 }
 .look{
-  position:relative;overflow:hidden;border-radius:6px;background:#e5e0d6;cursor:pointer;
+  position:relative;overflow:hidden;border-radius:8px;background:#e5e0d6;cursor:pointer;
 }
 .look img{width:100%;height:100%;object-fit:cover;transition:transform 1s cubic-bezier(.2,.9,.3,1)}
 .look:hover img{transform:scale(1.08)}
 .look::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(to top,rgba(0,0,0,.5),transparent 55%);
+  background:linear-gradient(to top,rgba(0,0,0,.55),transparent 55%);
   opacity:0;transition:opacity .4s;
 }
 .look:hover::after{opacity:1}
 .look-label{
-  position:absolute;left:18px;bottom:18px;color:#fff;
-  font-family:var(--serif);font-size:18px;font-style:italic;
+  position:absolute;left:16px;bottom:16px;color:#fff;
+  font-family:var(--serif);font-size:17px;font-style:italic;
   opacity:0;transform:translateY(8px);transition:all .4s;
   z-index:2;
 }
@@ -304,71 +518,97 @@ section{padding:100px 40px}
 .look.tall{grid-row:span 2}
 .look.wide{grid-column:span 2}
 
-/* ============ NEWSLETTER ============ */
+/* ============ NEWSLETTER / WAR REGISTER ============ */
 .newsletter{
   background:#efeae0;
   text-align:center;
   padding:110px 40px;
+  position:relative;z-index:2;overflow:hidden;
 }
+.newsletter::before{
+  content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);
+  width:600px;height:400px;border-radius:50%;
+  background:var(--accent-soft);filter:blur(100px);opacity:.3;
+}
+.newsletter-inner{position:relative;z-index:2}
 .newsletter h2{
-  font-family:var(--serif);font-size:clamp(38px,5vw,68px);
-  font-weight:400;line-height:1.02;letter-spacing:-.03em;margin-bottom:20px;
+  font-family:var(--serif);font-size:clamp(36px,4.8vw,64px);
+  font-weight:400;line-height:1.02;letter-spacing:-.03em;margin-bottom:18px;
 }
 .newsletter h2 em{font-style:italic;color:var(--accent)}
-.newsletter p{color:var(--muted);margin-bottom:44px;max-width:480px;margin-inline:auto}
+.newsletter p{
+  color:var(--muted);margin-bottom:40px;max-width:500px;margin-inline:auto;
+  font-size:15px;
+}
+.newsletter p b{color:var(--ink);font-weight:600}
 .news-form{
   display:flex;gap:0;max-width:520px;margin:0 auto;
   background:#fff;border-radius:100px;padding:6px;
-  box-shadow:0 10px 40px -20px rgba(0,0,0,.15);
+  box-shadow:0 14px 44px -22px rgba(0,0,0,.18);
 }
 .news-form input{
-  flex:1;border:none;background:none;padding:16px 24px;
-  font-family:inherit;font-size:14px;outline:none;color:var(--ink);
-  min-width:0;
+  flex:1;border:none;background:none;padding:15px 22px;
+  font-family:inherit;font-size:14px;outline:none;color:var(--ink);min-width:0;
 }
+.news-form input::placeholder{color:var(--muted)}
 .news-form button{
   background:var(--ink);color:var(--bg);
-  padding:0 30px;border-radius:100px;
-  font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;
+  padding:0 26px;border-radius:100px;
+  font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
   transition:background .25s;
 }
 .news-form button:hover{background:var(--accent)}
-.news-note{font-size:12px;color:var(--muted);margin-top:16px}
+.news-note{
+  font-size:11.5px;color:var(--muted);margin-top:16px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.news-note b{color:var(--accent);font-weight:600}
 
 /* ============ FOOTER ============ */
 footer{
   background:var(--ink);color:var(--bg);
   padding:80px 40px 40px;
+  position:relative;z-index:2;
 }
 .footer-grid{
-  display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:60px;
-  padding-bottom:60px;border-bottom:1px solid rgba(246,244,239,.12);
+  display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:56px;
+  padding-bottom:56px;border-bottom:1px solid rgba(246,244,239,.12);
 }
 .footer-brand h3{
-  font-family:var(--sans);font-size:26px;font-weight:700;
-  letter-spacing:.32em;margin-bottom:20px;
-  display:inline-flex;align-items:center;
+  font-size:24px;font-weight:700;letter-spacing:.32em;
+  margin-bottom:20px;display:inline-flex;align-items:center;
 }
 .footer-brand h3::after{
   content:'';display:inline-block;width:5px;height:5px;border-radius:50%;
   background:var(--accent);margin-left:4px;margin-bottom:-12px;
 }
-.footer-brand p{color:rgba(246,244,239,.55);max-width:280px;font-size:13px;line-height:1.7}
+.footer-brand p{
+  color:rgba(246,244,239,.55);max-width:300px;
+  font-size:13px;line-height:1.75;margin-bottom:22px;
+}
+.jogja-stamp{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 14px;border-radius:100px;
+  background:rgba(200,85,61,.12);border:1px solid rgba(200,85,61,.3);
+  font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--accent-soft);font-weight:600;
+}
+.jogja-stamp svg{width:12px;height:12px}
 .footer-col h4{
-  font-size:11px;letter-spacing:.18em;text-transform:uppercase;
-  color:rgba(246,244,239,.5);margin-bottom:20px;font-weight:500;
+  font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(246,244,239,.5);margin-bottom:20px;font-weight:600;
 }
 .footer-col a{
   display:block;font-size:13.5px;color:rgba(246,244,239,.85);
   margin-bottom:12px;transition:color .2s;
 }
-.footer-col a:hover{color:#e8b4a0}
+.footer-col a:hover{color:var(--accent-soft)}
 .footer-bottom{
   display:flex;justify-content:space-between;align-items:center;
-  padding-top:32px;font-size:12px;color:rgba(246,244,239,.45);
+  padding-top:32px;font-size:11.5px;color:rgba(246,244,239,.45);
   flex-wrap:wrap;gap:20px;
 }
-.socials{display:flex;gap:14px}
+.socials{display:flex;gap:12px}
 .socials a{
   width:36px;height:36px;border-radius:50%;
   border:1px solid rgba(246,244,239,.2);
@@ -378,16 +618,17 @@ footer{
 .socials a:hover{background:var(--accent);border-color:var(--accent)}
 
 /* ============ REVEAL ANIM ============ */
-.reveal{opacity:0;transform:translateY(28px);transition:opacity .9s cubic-bezier(.2,.9,.3,1),transform .9s cubic-bezier(.2,.9,.3,1)}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .9s cubic-bezier(.2,.9,.3,1),transform .9s cubic-bezier(.2,.9,.3,1)}
 .reveal.in{opacity:1;transform:translateY(0)}
 
 /* ============ RESPONSIVE ============ */
 @media(max-width:1000px){
-  .hero{grid-template-columns:1fr;gap:48px;padding-top:120px}
-  .hero-visual{max-width:560px;margin:0 auto;width:100%}
+  .hero{grid-template-columns:1fr;gap:44px;padding-top:100px;padding-bottom:40px}
+  .hero-visual{max-width:520px;margin:0 auto;width:100%;order:-1}
   .collection{grid-template-columns:repeat(2,1fr)}
+  .war-stats{grid-template-columns:repeat(2,1fr);gap:24px}
   .editorial{grid-template-columns:1fr}
-  .editorial-media{min-height:480px}
+  .editorial-media{min-height:440px}
   .editorial-content{padding:70px 40px}
   .footer-grid{grid-template-columns:1fr 1fr;gap:40px}
 }
@@ -396,68 +637,133 @@ footer{
   .nav.scrolled{padding:12px 20px}
   .nav-links{display:none}
   .menu-toggle{display:block}
+  .war-live{display:none}
   section{padding:70px 20px}
-  .hero{padding:110px 20px 40px}
-  .collection{grid-template-columns:1fr;gap:24px}
-  .lookbook{grid-template-columns:repeat(2,1fr);grid-auto-rows:180px}
-  .look.wide{grid-column:span 2}
+  .hero{padding:90px 20px 40px}
+  .collection{grid-template-columns:1fr;gap:22px}
+  .countdown-wrap{padding:20px 18px;margin-top:34px}
+  .countdown{gap:7px}
+  .cd-box{padding:11px 4px}
   .editorial-content{padding:56px 24px}
-  .editorial-stats{gap:32px;flex-wrap:wrap}
-  .editorial-stats .stat b{font-size:34px}
+  .editorial-stats{gap:28px;flex-wrap:wrap}
+  .editorial-stats .stat b{font-size:30px}
   .newsletter{padding:80px 20px}
-  .news-form{flex-direction:column;background:transparent;padding:0;box-shadow:none;gap:12px}
-  .news-form input{background:#fff;border-radius:100px;padding:16px 22px;text-align:center}
-  .news-form button{padding:16px 30px}
+  .news-form{flex-direction:column;background:transparent;padding:0;box-shadow:none;gap:10px}
+  .news-form input{background:#fff;border-radius:100px;padding:15px 20px;text-align:center}
+  .news-form button{padding:16px 28px}
   footer{padding:60px 20px 30px}
   .footer-grid{grid-template-columns:1fr;gap:32px}
-  .hero h1{font-size:clamp(48px,15vw,80px)}
+  .hero h1{font-size:clamp(44px,13vw,72px)}
   .brand{font-size:17px;letter-spacing:.28em}
+  .lookbook{grid-template-columns:repeat(2,1fr);grid-auto-rows:160px;gap:10px}
+  .look.wide{grid-column:span 2}
+  .war-stats{padding:22px;gap:18px}
 }
 </style>
 </head>
 <body>
 
+<div class="grain"></div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span>WAR DROP SETIAP <b>SABTU 20:00 WIB</b></span>
+    <span><b>LIMITED</b> — TIDAK AKAN RESTOCK</span>
+    <span>DARI <b>YOGYAKARTA</b> UNTUK INDONESIA</span>
+    <span>HANYA DI <b>DSMD.WEB.ID</b></span>
+    <span>WAR DROP SETIAP <b>SABTU 20:00 WIB</b></span>
+    <span><b>LIMITED</b> — TIDAK AKAN RESTOCK</span>
+    <span>DARI <b>YOGYAKARTA</b> UNTUK INDONESIA</span>
+    <span>HANYA DI <b>DSMD.WEB.ID</b></span>
+  </div>
+</div>
+
 <!-- NAV -->
 <nav class="nav" id="nav">
   <a href="#" class="brand">DSMD</a>
   <div class="nav-links">
-    <a href="#shop">Shop</a>
-    <a href="#collection">Collection</a>
-    <a href="#lookbook">Lookbook</a>
+    <a href="#war" class="active">War</a>
+    <a href="#shop">Drop</a>
     <a href="#story">Story</a>
+    <a href="#lookbook">Lookbook</a>
+    <a href="#notify">Notify</a>
   </div>
   <div class="nav-actions">
+    <span class="war-live">War Live</span>
     <button class="cart-btn">
       Cart
-      <span class="cart-count">2</span>
+      <span class="cart-count">0</span>
     </button>
     <button class="menu-toggle" onclick="document.querySelector('.nav-links').style.display = document.querySelector('.nav-links').style.display === 'flex' ? 'none' : 'flex'">☰</button>
   </div>
 </nav>
 
 <!-- HERO -->
-<section class="hero">
+<section class="hero" id="war">
+  <div class="blob blob-a"></div>
+  <div class="blob blob-b"></div>
+
   <div class="hero-text">
-    <div class="tag reveal">Spring / Summer 2026</div>
-    <h1 class="reveal">Dressed<br>in <em>silence.</em></h1>
+    <div class="tag reveal">War Drop N°07 · Sabtu 20:00 WIB</div>
+    <h1 class="reveal">
+      Kalau ragu,<br>
+      <span class="strike">hilang.</span><br>
+      <em>War aja.</em>
+    </h1>
     <p class="hero-sub reveal">
-      Essential pieces crafted for people who speak through presence, not noise.
-      Slow-made. Considered. Built to outlast the season.
+      <b>DSMD</b> bukan brand biasa. Semua rilisan <b>limited</b> —
+      tidak ada restock, tidak ada second wave.
+      Yang gerak cepat, dapat. Yang mikir kelamaan, cuma lihat screenshot.
     </p>
-    <div class="hero-cta reveal">
+
+    <div class="countdown-wrap reveal">
+      <div class="countdown-label">
+        <span class="title"><i>◆</i> War berikutnya dimulai dalam</span>
+        <span class="sub" id="cdTZ">WIB · GMT+7</span>
+      </div>
+      <div class="countdown" id="countdown">
+        <div class="cd-box">
+          <span class="cd-num" id="cdD">00</span>
+          <span class="cd-lbl">Hari</span>
+        </div>
+        <div class="cd-box">
+          <span class="cd-num" id="cdH">00</span>
+          <span class="cd-lbl">Jam</span>
+        </div>
+        <div class="cd-box">
+          <span class="cd-num" id="cdM">00</span>
+          <span class="cd-lbl">Menit</span>
+        </div>
+        <div class="cd-box sec">
+          <span class="cd-num" id="cdS">00</span>
+          <span class="cd-lbl">Detik</span>
+        </div>
+      </div>
+      <div class="countdown-foot">
+        <span>Ingat: <b>1 item bisa habis dalam &lt;30 detik</b></span>
+        <span class="war-ready">◆ <span id="warriorsCount">1.247</span> warriors ready</span>
+      </div>
+    </div>
+
+    <div class="hero-cta" style="margin-top:36px">
       <a href="#shop" class="btn-primary">
-        Shop Collection
+        Lihat Drop Sekarang
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
-      <a href="#lookbook" class="btn-ghost">View Lookbook</a>
+      <a href="#notify" class="btn-ghost">Ingatkan Saya</a>
     </div>
   </div>
+
   <div class="hero-visual reveal">
-    <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=900&q=80" alt="Editorial">
-    <span class="hero-badge">New Arrival</span>
+    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&q=80" alt="War Drop Preview">
+    <div class="hero-badge">Preview War N°07</div>
     <div class="hero-caption">
-      <span>The Atelier Series</span>
-      <span>N° 01</span>
+      <span>Stok Preview</span>
+      <span class="stock">
+        <span class="stock-bar"><i></i></span>
+        32/100
+      </span>
     </div>
   </div>
 </section>
@@ -465,136 +771,180 @@ footer{
 <!-- MARQUEE -->
 <div class="marquee">
   <div class="marquee-track">
-    <span>Organic Cotton</span><span>Hand-Finished</span><span>Made in Small Batches</span><span>Free Shipping</span>
-    <span>Organic Cotton</span><span>Hand-Finished</span><span>Made in Small Batches</span><span>Free Shipping</span>
+    <span>War Drop Setiap Sabtu</span>
+    <span>No Restock. Ever.</span>
+    <span>Made in Jogja</span>
+    <span>Limited to 100 pcs</span>
+    <span>War Drop Setiap Sabtu</span>
+    <span>No Restock. Ever.</span>
+    <span>Made in Jogja</span>
+    <span>Limited to 100 pcs</span>
   </div>
 </div>
 
-<!-- COLLECTION -->
+<!-- DROP SECTION -->
 <section id="shop">
   <div class="section-head">
-    <h2 class="reveal">The <em>Essentials</em></h2>
-    <p class="reveal">Twelve pieces. Zero filler. Each one earns its place in your wardrobe — or it doesn't make the cut.</p>
+    <h2 class="reveal">Drop <em>N°07</em></h2>
+    <p class="reveal">
+      <b>Hanya 100 pcs per design.</b> Kalau habis, tidak akan restock.
+      Nomor urut pembelian menentukan siapa yang dapat — first come, first served.
+    </p>
   </div>
+
+  <!-- WAR STATS -->
+  <div class="war-stats reveal">
+    <div class="stat">
+      <b id="statDropped">07</b>
+      <span>War Drops</span>
+    </div>
+    <div class="stat">
+      <b>28<span>s</span></b>
+      <span>Fastest Sellout</span>
+    </div>
+    <div class="stat">
+      <b>4.312</b>
+      <span>Warriors Fight</span>
+    </div>
+    <div class="stat">
+      <b>0</b>
+      <span>Restocks — Ever</span>
+    </div>
+  </div>
+
   <div class="collection">
     <article class="card reveal">
       <div class="card-img">
-        <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=700&q=80" alt="Product">
-        <span class="card-tag new">New</span>
-        <div class="card-quick">Add to Cart</div>
+        <img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=700&q=80" alt="Product">
+        <span class="card-tag war">War</span>
+        <span class="card-stock low">32/100</span>
+        <div class="card-quick">Ikut War →</div>
       </div>
       <div class="card-info">
         <div>
-          <h3>Heavyweight Tee</h3>
-          <div class="desc">Bone White · 320gsm</div>
+          <h3>Abstract Tee 01</h3>
+          <div class="desc">Bone · Hand-printed · Jogja</div>
         </div>
-        <div class="card-price">Rp 340.000</div>
+        <div class="card-price"><span class="cur">Rp</span>340K</div>
       </div>
     </article>
 
     <article class="card reveal">
       <div class="card-img">
         <img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=700&q=80" alt="Product">
-        <div class="card-quick">Add to Cart</div>
+        <span class="card-tag">Limited</span>
+        <span class="card-stock">78/100</span>
+        <div class="card-quick">Ikut War →</div>
       </div>
       <div class="card-info">
         <div>
-          <h3>Silk Shirt</h3>
-          <div class="desc">Ivory · Relaxed Fit</div>
+          <h3>Blob Shirt</h3>
+          <div class="desc">Ivory · Boxy · Unisex</div>
         </div>
-        <div class="card-price">Rp 780.000</div>
+        <div class="card-price"><span class="cur">Rp</span>460K</div>
       </div>
     </article>
 
     <article class="card reveal">
       <div class="card-img">
         <img src="https://images.unsplash.com/photo-1542272604-787c3835535d?w=700&q=80" alt="Product">
-        <span class="card-tag">Limited</span>
-        <div class="card-quick">Add to Cart</div>
+        <span class="card-tag war">Hot</span>
+        <span class="card-stock low">8/100</span>
+        <div class="card-quick">Ikut War →</div>
       </div>
       <div class="card-info">
         <div>
-          <h3>Wide Trouser</h3>
-          <div class="desc">Charcoal · Wool Blend</div>
+          <h3>Warp Trouser</h3>
+          <div class="desc">Charcoal · Wide Leg</div>
         </div>
-        <div class="card-price">Rp 620.000</div>
+        <div class="card-price"><span class="cur">Rp</span>520K</div>
       </div>
     </article>
 
     <article class="card reveal">
       <div class="card-img">
         <img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=700&q=80" alt="Product">
-        <div class="card-quick">Add to Cart</div>
+        <span class="card-tag">Sold Out</span>
+        <span class="card-stock low">0/100</span>
+        <div class="card-quick sold">Sold Out — 47s</div>
       </div>
       <div class="card-info">
         <div>
-          <h3>Oversized Coat</h3>
-          <div class="desc">Camel · Italian Wool</div>
+          <h3>Static Coat</h3>
+          <div class="desc">Camel · Drop N°06</div>
         </div>
-        <div class="card-price">Rp 1.480.000</div>
+        <div class="card-price"><span class="cur">Rp</span>1.480K</div>
       </div>
     </article>
 
     <article class="card reveal">
       <div class="card-img">
         <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=700&q=80" alt="Product">
-        <span class="card-tag new">New</span>
-        <div class="card-quick">Add to Cart</div>
+        <span class="card-tag war">War</span>
+        <span class="card-stock">45/100</span>
+        <div class="card-quick">Ikut War →</div>
       </div>
       <div class="card-info">
         <div>
-          <h3>Linen Shirt</h3>
-          <div class="desc">Sand · Boxy Cut</div>
+          <h3>Noise Shirt</h3>
+          <div class="desc">Sand · Linen · Oversized</div>
         </div>
-        <div class="card-price">Rp 460.000</div>
+        <div class="card-price"><span class="cur">Rp</span>390K</div>
       </div>
     </article>
 
     <article class="card reveal">
       <div class="card-img">
         <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=700&q=80" alt="Product">
-        <div class="card-quick">Add to Cart</div>
+        <span class="card-tag">Sold Out</span>
+        <span class="card-stock low">0/100</span>
+        <div class="card-quick sold">Sold Out — 63s</div>
       </div>
       <div class="card-info">
         <div>
-          <h3>Knit Sweater</h3>
-          <div class="desc">Cream · Merino Blend</div>
+          <h3>Matter Knit</h3>
+          <div class="desc">Cream · Drop N°05</div>
         </div>
-        <div class="card-price">Rp 890.000</div>
+        <div class="card-price"><span class="cur">Rp</span>690K</div>
       </div>
     </article>
   </div>
 </section>
 
-<!-- EDITORIAL SPLIT -->
+<!-- STORY / EDITORIAL -->
 <section class="editorial" id="story">
   <div class="editorial-media reveal">
-    <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1000&q=80" alt="Atelier">
+    <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1000&q=80" alt="Atelier Jogja">
   </div>
   <div class="editorial-content">
-    <span class="tag reveal">Behind the Seams</span>
-    <h2 class="reveal">Made by hands<br>that <em>care.</em></h2>
+    <span class="tag reveal">Anak Jogja · Sejak 2019</span>
+    <h2 class="reveal">Dibuat di Jogja,<br>buat yang <em>berani.</em></h2>
     <p class="reveal">
-      Every DSMD piece begins in our Jakarta atelier — where six craftspeople spend
-      days shaping fabric that most brands would mass-produce in hours. We don't chase
-      trends. We chase the feeling of a garment that fits the life you already live.
+      Kami bukan brand yang lahir dari modal besar. <b>DSMD</b> tumbuh dari kamar
+      kos di Yogyakarta — dari sketsa abstract yang awalnya cuma iseng, jadi rilisan
+      yang diperebutkan ribuan orang tiap Sabtu malam.
+    </p>
+    <p class="reveal">
+      Semua masih kami <b>print manual</b>, satu per satu, di workshop kecil kami di
+      Jalan Kaliurang. Tidak ada pabrik. Tidak ada stok gudang. Yang ada cuma
+      rilisan kecil, penuh cerita, dan orang-orang yang benar-benar mau.
     </p>
     <a href="#" class="btn-light reveal">
-      Read Our Story
+      Baca Selengkapnya
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </a>
     <div class="editorial-stats reveal">
       <div class="stat">
         <b>06</b>
-        <span>Craftspeople</span>
+        <span>War Drops</span>
       </div>
       <div class="stat">
-        <b>12</b>
-        <span>Pieces / Year</span>
+        <b>100<span>%</span></b>
+        <span>Handmade</span>
       </div>
       <div class="stat">
-        <b>100%</b>
-        <span>Natural Fibers</span>
+        <b>YK</b>
+        <span>Origin</span>
       </div>
     </div>
   </div>
@@ -603,8 +953,8 @@ footer{
 <!-- LOOKBOOK -->
 <section id="lookbook">
   <div class="section-head">
-    <h2 class="reveal">The <em>Lookbook</em></h2>
-    <p class="reveal">SS26 editorial. Photographed in Bandung, styled for the everyday.</p>
+    <h2 class="reveal">Lookbook <em>SS26</em></h2>
+    <p class="reveal">Dipoto di Malioboro, sore hari, sama cahaya yang bikin abstrak jadi masuk akal.</p>
   </div>
   <div class="lookbook">
     <div class="look tall reveal">
@@ -638,15 +988,22 @@ footer{
   </div>
 </section>
 
-<!-- NEWSLETTER -->
-<section class="newsletter" id="collection">
-  <h2 class="reveal">Join the <em>quiet.</em></h2>
-  <p class="reveal">Early access to drops, lookbooks, and stories from the atelier. No spam, ever.</p>
-  <form class="news-form reveal" onsubmit="event.preventDefault(); this.querySelector('button').textContent='✓ Done'; this.querySelector('input').value='';">
-    <input type="email" placeholder="your@email.com" required>
-    <button type="submit">Subscribe</button>
-  </form>
-  <div class="news-note">Join 12.400+ readers.</div>
+<!-- WAR REGISTER / NOTIFY -->
+<section class="newsletter" id="notify">
+  <div class="newsletter-inner">
+    <h2 class="reveal">Jangan <em>telat.</em></h2>
+    <p class="reveal">
+      Daikin email kamu, nanti kami kabarin <b>30 menit sebelum War dibuka</b>
+      plus preview eksklusif yang nggak keluar di sosmed. Gratis, bisa berhenti kapan aja.
+    </p>
+    <form class="news-form reveal" onsubmit="event.preventDefault(); this.querySelector('button').textContent='✓ Siap, pantau email!'; this.querySelector('input').value='';">
+      <input type="email" placeholder="emailkamu@contoh.com" required>
+      <button type="submit">Kabarin Aku</button>
+    </form>
+    <div class="news-note reveal">
+      ◆ <b id="notifyCount">4.312</b> orang udah daftar. Sabtu ini giliran kamu?
+    </div>
+  </div>
 </section>
 
 <!-- FOOTER -->
@@ -654,75 +1011,178 @@ footer{
   <div class="footer-grid">
     <div class="footer-brand">
       <h3>DSMD</h3>
-      <p>Slow fashion for fast lives. Considered garments crafted in small batches since 2019.</p>
+      <p>Independent clothing brand dari Yogyakarta. Semua rilisan limited, semua handmade, semua war.</p>
+      <div class="jogja-stamp">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        Made in Yogyakarta
+      </div>
     </div>
     <div class="footer-col">
-      <h4>Shop</h4>
-      <a href="#">New Arrivals</a>
-      <a href="#">Best Sellers</a>
-      <a href="#">Gift Cards</a>
-      <a href="#">Size Guide</a>
+      <h4>War</h4>
+      <a href="#war">War Terdekat</a>
+      <a href="#shop">Drop Sekarang</a>
+      <a href="#notify">Notifikasi</a>
+      <a href="#">Cara Beli</a>
     </div>
     <div class="footer-col">
-      <h4>Company</h4>
-      <a href="#">Our Story</a>
-      <a href="#">Sustainability</a>
-      <a href="#">Careers</a>
-      <a href="#">Press</a>
+      <h4>Brand</h4>
+      <a href="#story">Cerita Kami</a>
+      <a href="#lookbook">Lookbook</a>
+      <a href="#">Kolaborasi</a>
+      <a href="#">Press Kit</a>
     </div>
     <div class="footer-col">
-      <h4>Support</h4>
-      <a href="#">Shipping</a>
-      <a href="#">Returns</a>
-      <a href="#">Contact</a>
+      <h4>Bantuan</h4>
+      <a href="#">Panduan Ukuran</a>
+      <a href="#">Pengiriman</a>
+      <a href="#">Kontak</a>
       <a href="#">FAQ</a>
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2026 DSMD Atelier. Made with intention in Jakarta.</span>
+    <span>© 2026 DSMD Atelier — Anak Jogja. Tidak akan restock. Tidak akan minta maaf.</span>
     <div class="socials">
       <a href="#" aria-label="Instagram">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor"/></svg>
       </a>
       <a href="#" aria-label="TikTok">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.6 6.7a5 5 0 0 1-3.4-3.7H13v13a3.1 3.1 0 1 1-2.4-3v-3a6.1 6.1 0 1 0 5.5 6V9.7a8 8 0 0 0 4.5 1.4v-3a5 5 0 0 1-1-.4Z"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.6 6.7a5 5 0 0 1-3.4-3.7H13v13a3.1 3.1 0 1 1-2.4-3v-3a6.1 6.1 0 1 0 5.5 6V9.7a8 8 0 0 0 4.5 1.4v-3a5 5 0 0 1-1-.4Z"/></svg>
       </a>
-      <a href="#" aria-label="Pinterest">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.6 19.3c-.1-.8-.1-2 .1-2.9l1.2-5.2s-.3-.6-.3-1.5c0-1.4.8-2.5 1.8-2.5.9 0 1.3.7 1.3 1.4 0 .9-.5 2.2-.8 3.4-.2.9.5 1.7 1.4 1.7 1.7 0 2.9-2.2 2.9-4.8 0-2-1.3-3.5-3.7-3.5-2.7 0-4.3 2-4.3 4.1 0 .8.3 1.7.7 2.2.1.1.1.2.1.3l-.3 1.1c0 .2-.2.2-.3.1-1.3-.6-2.1-2.5-2.1-4 0-3.3 2.4-6.3 6.9-6.3 3.6 0 6.4 2.6 6.4 6 0 3.6-2.3 6.5-5.4 6.5-1.1 0-2.1-.6-2.4-1.2l-.7 2.5c-.2.9-.9 2.1-1.3 2.8A10 10 0 1 0 12 2Z"/></svg>
+      <a href="#" aria-label="Shopee">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1.5 12h-9L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
       </a>
     </div>
   </div>
 </footer>
 
 <script>
-// Nav scroll state
+// ===== NAV SCROLL =====
 const nav = document.getElementById('nav');
 window.addEventListener('scroll', () => {
-  nav.classList.toggle('scrolled', window.scrollY > 40);
+  nav.classList.toggle('scrolled', window.scrollY > 30);
 }, {passive:true});
 
-// Reveal on scroll
+// ===== REVEAL ON SCROLL =====
 const io = new IntersectionObserver((entries) => {
   entries.forEach((e, i) => {
     if(e.isIntersecting){
-      setTimeout(() => e.target.classList.add('in'), i * 60);
+      setTimeout(() => e.target.classList.add('in'), i * 55);
       io.unobserve(e.target);
     }
   });
-}, {threshold: 0.12, rootMargin: '0px 0px -60px 0px'});
-
+}, {threshold: 0.1, rootMargin: '0px 0px -60px 0px'});
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-// Cart micro-interaction
+// ===== COUNTDOWN =====
+// Target: Sabtu berikutnya jam 20:00 WIB (GMT+7) = 13:00 UTC
+function nextWarDrop() {
+  const now = new Date();
+  const nowUtc = new Date(now.toISOString());
+  const dayOfWeek = nowUtc.getUTCDay(); // 0=Sun
+  // Sabtu = 6. WIB 20:00 = UTC 13:00
+  let daysUntilSat = (6 - dayOfWeek + 7) % 7;
+  const targetUtc = new Date(Date.UTC(
+    nowUtc.getUTCFullYear(),
+    nowUtc.getUTCMonth(),
+    nowUtc.getUTCDate() + daysUntilSat,
+    13, 0, 0
+  ));
+  // Kalau sudah lewat Sabtu 13:00 UTC hari ini, maju 7 hari
+  if (targetUtc.getTime() <= nowUtc.getTime()) {
+    targetUtc.setUTCDate(targetUtc.getUTCDate() + 7);
+  }
+  return targetUtc;
+}
+
+let TARGET = nextWarDrop().getTime();
+
+const cdD = document.getElementById('cdD');
+const cdH = document.getElementById('cdH');
+const cdM = document.getElementById('cdM');
+const cdS = document.getElementById('cdS');
+
+function pad(n){ return n < 10 ? '0' + n : String(n); }
+
+function tickCountdown(){
+  const now = Date.now();
+  let diff = TARGET - now;
+  if (diff <= 0) {
+    // Reset ke Sabtu berikutnya begitu habis
+    TARGET = nextWarDrop().getTime();
+    diff = TARGET - now;
+  }
+  const secTotal = Math.floor(diff / 1000);
+  const days = Math.floor(secTotal / 86400);
+  const hours = Math.floor((secTotal % 86400) / 3600);
+  const mins = Math.floor((secTotal % 3600) / 60);
+  const secs = secTotal % 60;
+
+  cdD.textContent = pad(days);
+  cdH.textContent = pad(hours);
+  cdM.textContent = pad(mins);
+  cdS.textContent = pad(secs);
+}
+tickCountdown();
+setInterval(tickCountdown, 1000);
+
+// ===== LIVE WARRIOR COUNT (naik sedikit tiap ~3 detik biar terasa hidup) =====
+const warriorsEl = document.getElementById('warriorsCount');
+if (warriorsEl) {
+  let count = parseInt(warriorsEl.textContent.replace(/\D/g, ''), 10) || 1247;
+  setInterval(() => {
+    // Kadang naik, kadang diam — biar natural
+    if (Math.random() > 0.4) {
+      count += Math.floor(Math.random() * 3) + 1;
+      warriorsEl.textContent = count.toLocaleString('id-ID');
+    }
+  }, 3200);
+}
+
+// ===== NOTIFY COUNT =====
+const notifyEl = document.getElementById('notifyCount');
+if (notifyEl) {
+  let n = parseInt(notifyEl.textContent.replace(/\D/g, ''), 10) || 4312;
+  setInterval(() => {
+    if (Math.random() > 0.5) {
+      n += 1;
+      notifyEl.textContent = n.toLocaleString('id-ID');
+    }
+  }, 5000);
+}
+
+// ===== WAR BUTTON MICRO-INTERACTION =====
 document.querySelectorAll('.card-quick').forEach(btn => {
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
+    if (btn.classList.contains('sold')) return;
     const badge = document.querySelector('.cart-count');
-    badge.textContent = parseInt(badge.textContent) + 1;
-    btn.textContent = '✓ Added';
-    setTimeout(() => btn.textContent = 'Add to Cart', 1400);
+    const current = parseInt(badge.textContent, 10) || 0;
+    badge.textContent = current + 1;
+    const original = btn.textContent;
+    btn.textContent = '✓ Masuk Keranjang';
+    btn.style.background = 'var(--accent)';
+    btn.style.color = '#fff';
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.style.background = '';
+      btn.style.color = '';
+    }, 1500);
   });
 });
+
+// ===== SMOOTH ACTIVE NAV HIGHLIGHT =====
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(sec => {
+    const top = sec.offsetTop - 120;
+    if (window.scrollY >= top) current = sec.id;
+  });
+  navLinks.forEach(link => {
+    link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+  });
+}, {passive:true});
 </script>
 </body>
 </html>

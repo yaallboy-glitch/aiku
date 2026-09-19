@@ -802,12 +802,13 @@ footer{
 <div class="modal-overlay" id="adminModal" onclick="if(event.target===this)closeModal('adminModal')">
   <div class="modal-box modal-wide" style="max-width:960px">
     <button class="modal-close" onclick="closeModal('adminModal')">✕</button>
-    <h3 class="modal-title">Panel Admin</h3>
-    <p class="modal-sub">Kelola war drop & export data pesanan.</p>
+    <h3 class="modal-title" id="adminModalTitle">Panel Admin</h3>
+    <p class="modal-sub" id="adminModalSub">Kelola war drop & export data pesanan.</p>
 
     <div class="admin-tabs">
-      <button class="admin-tab active" data-tab="products" onclick="switchAdminTab('products',this)">Produk</button>
-      <button class="admin-tab" data-tab="orders" onclick="switchAdminTab('orders',this)">Pesanan</button>
+      <button class="admin-tab active" data-tab="products" data-roles="admin,staff" onclick="switchAdminTab('products',this)">Produk</button>
+      <button class="admin-tab" data-tab="orders" data-roles="admin" onclick="switchAdminTab('orders',this)">Pesanan</button>
+      <button class="admin-tab" data-tab="users" data-roles="admin" onclick="switchAdminTab('users',this)">Users</button>
     </div>
 
     <div id="adminTabProducts">
@@ -821,11 +822,17 @@ footer{
         <div style="display:grid;gap:14px">
           <div><span class="field-label">Nama Produk</span><input id="pfName" class="input-f" placeholder="Abstract Tee 01"></div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div><span class="field-label">Harga (Rp)</span><input id="pfPrice" class="input-f" type="number" placeholder="340000"></div>
+            <div><span class="field-label">Harga (Rp)</span><input id="pfPrice" class="input-f" type="number" placeholder="340000"><small id="pfPriceHint" style="display:none;margin-top:6px;font-size:11px;color:var(--muted)">Hubungi admin untuk ubah harga</small></div>
             <div><span class="field-label">Stok War (pcs)</span><input id="pfStock" class="input-f" type="number" placeholder="100"></div>
           </div>
           <div><span class="field-label">Deskripsi</span><input id="pfDesc" class="input-f" placeholder="Bone · Hand-printed · Jogja"></div>
-          <div><span class="field-label">URL Gambar</span><input id="pfImg" class="input-f" placeholder="https://..."></div>
+          <div>
+            <span class="field-label">Gambar Produk</span>
+            <input id="pfImg" class="input-f" placeholder="https://... (URL)" oninput="pfImgUrlInput()">
+            <div style="margin:8px 0;font-size:12px;color:var(--muted)">atau upload dari perangkat (maks 2 MB)</div>
+            <input id="pfFile" type="file" accept="image/*" onchange="pfHandleFile(this)">
+            <img id="pfPreview" alt="" style="display:none;margin-top:10px;width:96px;height:96px;object-fit:cover;border-radius:10px;border:1px solid var(--line)">
+          </div>
           <div><span class="field-label">Ukuran (pisahkan koma)</span><input id="pfSizes" class="input-f" value="S, M, L, XL"></div>
         </div>
         <div style="display:flex;gap:8px;margin-top:18px">
@@ -833,6 +840,13 @@ footer{
           <button onclick="closeProductForm()" class="btn-ghost" style="padding:12px 24px">Batal</button>
         </div>
       </div>
+    </div>
+
+    <div id="adminTabUsers" style="display:none">
+      <div style="margin-bottom:20px">
+        <button onclick="loadAdminUsers()" class="btn-ghost" style="padding:12px 22px">🔄 Refresh</button>
+      </div>
+      <div id="adminUserList"></div>
     </div>
 
     <div id="adminTabOrders" style="display:none">
@@ -864,6 +878,18 @@ let productsCache = [];
 let currentProduct = null;
 let currentQty = 1;
 let currentSize = null;
+
+// ROLE HELPERS
+const ROLES = ['admin','staff','customer'];
+function getRole(u = currentUser){
+  if(!u) return 'customer';
+  const r = u.role || (u.is_admin ? 'admin' : 'customer');
+  return ROLES.includes(r) ? r : 'customer';
+}
+const isAdmin = () => getRole() === 'admin';
+const isStaff = () => getRole() === 'staff';
+const canAccessPanel = () => isAdmin() || isStaff();
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 // ============================================================
 //  UTILITIES
@@ -953,7 +979,9 @@ function applyUserUI(){
     $('authBtnText').textContent = currentUser.name.split(' ')[0];
     $('userName').textContent = currentUser.name;
     $('userEmail').textContent = currentUser.email;
-    $('adminMenuItem').style.display = currentUser.is_admin ? 'flex' : 'none';
+    currentUser.role = getRole();
+    $('adminMenuItem').style.display = canAccessPanel() ? 'flex' : 'none';
+    $('adminMenuItem').textContent = isAdmin() ? '⚙ Panel Admin' : '⚙ Panel Staff';
   } else {
     $('authBtnText').textContent = 'Daftar / Masuk';
     $('adminMenuItem').style.display = 'none';
@@ -965,6 +993,7 @@ async function handleLogout(){
     await fetch(API + '/auth/logout', { method: 'POST', credentials: 'include' });
   } catch(e){}
   currentUser = null;
+  closeModal('adminModal');
   $('userMenu').classList.remove('show');
   applyUserUI();
   showToast('Sudah keluar');
@@ -1205,19 +1234,30 @@ async function openMyOrders(){
 // ============================================================
 //  ADMIN
 // ============================================================
+const TAB_ROLES = { products:['admin','staff'], orders:['admin'], users:['admin'] };
+
 function openAdminPanel(){
-  if(!currentUser || !currentUser.is_admin){ showToast('Akses ditolak'); return; }
+  if(!canAccessPanel()){ showToast('Akses ditolak'); return; }
   $('userMenu').classList.remove('show');
+  const role = getRole();
+  $('adminModalTitle').textContent = isAdmin() ? 'Panel Admin' : 'Panel Staff';
+  document.querySelectorAll('.admin-tab').forEach(t => {
+    t.style.display = t.dataset.roles.split(',').includes(role) ? '' : 'none';
+  });
+  switchAdminTab('products', document.querySelector('.admin-tab[data-tab="products"]'));
   openModal('adminModal');
   loadAdminProducts();
-  loadAdminOrders();
+  if(isAdmin()) loadAdminOrders();
 }
 
 function switchAdminTab(tab, btn){
+  if(!(TAB_ROLES[tab] || []).includes(getRole())) return;
   document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
-  $('adminTabProducts').style.display = tab === 'products' ? 'block' : 'none';
-  $('adminTabOrders').style.display = tab === 'orders' ? 'block' : 'none';
+  ['Products','Orders','Users'].forEach(k => {
+    $('adminTab' + k).style.display = k.toLowerCase() === tab ? 'block' : 'none';
+  });
+  if(tab === 'users') loadAdminUsers();
 }
 
 async function loadAdminProducts(){
@@ -1238,11 +1278,53 @@ async function loadAdminProducts(){
         </div>
         <div class="order-actions">
           <button class="btn-sm ghost" onclick="editProduct('${p.id}')">Edit</button>
-          <button class="btn-sm danger" onclick="deleteProduct('${p.id}')">Hapus</button>
+          ${isAdmin() ? `<button class="btn-sm danger" onclick="deleteProduct('${p.id}')">Hapus</button>` : ''}
         </div>
       </div>
     `).join('');
   } catch(e){ console.error(e); }
+}
+
+let pfImageData = '';
+
+function pfSetPreview(src){
+  const im = $('pfPreview');
+  im.src = src || '';
+  im.style.display = src ? 'block' : 'none';
+}
+function pfImgUrlInput(){
+  pfImageData = ''; $('pfFile').value = '';
+  pfSetPreview($('pfImg').value.trim());
+}
+function pfHandleFile(input){
+  const f = input.files[0];
+  if(!f) return;
+  if(!f.type.startsWith('image/')){ showToast('File harus berupa gambar'); input.value = ''; return; }
+  if(f.size > 2 * 1024 * 1024){ showToast('Ukuran maksimal 2 MB'); input.value = ''; return; }
+  const url = URL.createObjectURL(f);
+  const img = new Image();
+  img.onload = () => {
+    const s = Math.min(1, 800 / Math.max(img.width, img.height));
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.width * s);
+    c.height = Math.round(img.height * s);
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+    pfImageData = c.toDataURL('image/jpeg', 0.85);
+    URL.revokeObjectURL(url);
+    $('pfImg').value = '';
+    pfSetPreview(pfImageData);
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); showToast('Gambar tidak valid'); input.value = ''; };
+  img.src = url;
+}
+
+function applyProductFormRole(){
+  const staff = isStaff();
+  $('pfPrice').readOnly = staff;
+  $('pfPrice').style.opacity = staff ? '.6' : '';
+  $('pfPriceHint').style.display = staff ? 'block' : 'none';
 }
 
 function openProductForm(){
@@ -1250,22 +1332,25 @@ function openProductForm(){
   $('productFormTitle').textContent = 'Tambah Produk';
   ['pfId','pfName','pfPrice','pfStock','pfDesc','pfImg'].forEach(id => $(id).value = '');
   $('pfSizes').value = 'S, M, L, XL';
+  pfImageData = ''; $('pfFile').value = ''; pfSetPreview('');
+  applyProductFormRole();
   $('productForm').scrollIntoView({ behavior:'smooth', block:'nearest' });
 }
 
 function closeProductForm(){ $('productForm').style.display = 'none'; }
 
 async function saveProduct(){
+  if(!canAccessPanel()){ showToast('Akses ditolak'); return; }
   const body = {
     name: $('pfName').value.trim(),
-    price: parseInt($('pfPrice').value, 10) || 0,
     stock_total: parseInt($('pfStock').value, 10) || 0,
     description: $('pfDesc').value.trim(),
-    image_url: $('pfImg').value.trim(),
+    image_url: pfImageData || $('pfImg').value.trim(),
     sizes: $('pfSizes').value.trim()
   };
-  if(!body.name || !body.price || !body.stock_total){
-    showToast('Nama, harga, dan stok wajib diisi'); return;
+  if(isAdmin()) body.price = parseInt($('pfPrice').value, 10) || 0; // staff: harga tidak dikirim
+  if(!body.name || !body.stock_total || (isAdmin() && !body.price)){
+    showToast(isAdmin() ? 'Nama, harga, dan stok wajib diisi' : 'Nama dan stok wajib diisi'); return;
   }
   const id = $('pfId').value;
   const url = id ? API + '/admin/products/' + id : API + '/admin/products';
@@ -1297,11 +1382,14 @@ async function editProduct(id){
   $('pfDesc').value = p.description || '';
   $('pfImg').value = p.image_url || '';
   $('pfSizes').value = p.sizes || 'S, M, L, XL';
+  pfImageData = ''; $('pfFile').value = ''; pfSetPreview(p.image_url || '');
+  applyProductFormRole();
   $('productForm').style.display = 'block';
   $('productFormTitle').textContent = 'Edit Produk';
 }
 
 async function deleteProduct(id){
+  if(!isAdmin()){ showToast('Akses ditolak'); return; }
   if(!confirm('Yakin hapus produk ini?')) return;
   try {
     await fetch(API + '/admin/products/' + id, { method:'DELETE', credentials:'include' });
@@ -1309,6 +1397,65 @@ async function deleteProduct(id){
     loadProducts();
     showToast('Produk dihapus');
   } catch(e){ showToast('Gagal hapus'); }
+}
+
+function usersMsg(t){ return '<div style="text-align:center;padding:40px;color:var(--muted)">' + t + '</div>'; }
+
+async function loadAdminUsers(){
+  if(!isAdmin()) return;
+  const box = $('adminUserList');
+  box.innerHTML = usersMsg('Memuat...');
+  try {
+    const r = await fetch(API + '/admin/users', { credentials:'include' });
+    if(r.status === 404){ box.innerHTML = usersMsg('Fitur ini belum aktif. Backend belum siap.'); return; }
+    const data = await r.json().catch(() => ({}));
+    if(!r.ok) throw new Error(data.error || 'Gagal memuat user');
+    const users = data.users || [];
+    if(!users.length){ box.innerHTML = usersMsg('Belum ada user'); return; }
+    box.innerHTML = users.map(u => {
+      const role = ROLES.includes(u.role) ? u.role : (u.is_admin ? 'admin' : 'customer');
+      const ini = esc((u.name || u.email || '?').trim()[0].toUpperCase());
+      return `
+      <div class="order-row">
+        <div style="width:38px;height:38px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600">${ini}</div>
+        <div>
+          <div style="font-weight:600">${esc(u.name)}</div>
+          <div class="order-meta">${esc(u.email)}</div>
+          <select class="input-f" style="margin-top:8px;padding:8px 12px;max-width:180px" data-email="${esc(u.email)}" data-orig="${role}">
+            ${ROLES.map(x => `<option value="${x}" ${x === role ? 'selected' : ''}>${x[0].toUpperCase() + x.slice(1)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="order-actions"><button class="btn-sm ghost" onclick="saveUserRole(this)">Simpan</button></div>
+      </div>`;
+    }).join('');
+  } catch(e){ box.innerHTML = usersMsg(esc(e.message)); }
+}
+
+async function saveUserRole(btn){
+  if(!isAdmin()) return;
+  const sel = btn.closest('.order-row').querySelector('select');
+  const email = sel.dataset.email, role = sel.value;
+  if(role === sel.dataset.orig) return;
+  if(email === currentUser.email && role !== 'admin' && !confirm('Kamu menurunkan role akunmu sendiri. Lanjut?')){
+    sel.value = sel.dataset.orig; return;
+  }
+  btn.disabled = true;
+  try {
+    const r = await fetch(API + '/admin/users/' + encodeURIComponent(email) + '/role', {
+      method:'PATCH', credentials:'include',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ role })
+    });
+    if(!r.ok){
+      const d = await r.json().catch(() => ({}));
+      throw new Error(d.error || (r.status === 404 ? 'Endpoint belum tersedia' : 'Gagal simpan role'));
+    }
+    sel.dataset.orig = role;
+    showToast('Role diperbarui');
+  } catch(e){
+    sel.value = sel.dataset.orig;
+    showToast(e.message);
+  } finally { btn.disabled = false; }
 }
 
 async function loadAdminOrders(){

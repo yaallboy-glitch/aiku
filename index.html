@@ -398,6 +398,16 @@ footer{
   .auth-btn span{max-width:72px}
   .nav-actions{gap:5px}
 }
+/* iPad portrait & tablet kecil: nav muat di layar */
+@media (min-width:681px) and (max-width:1000px){
+  :root{--gx:24px}
+  .nav{gap:12px}
+  .nav-links{gap:16px;font-size:11px;letter-spacing:.05em}
+  .war-live{display:none}
+  .nav-actions{gap:8px}
+  .brand{font-size:18px;letter-spacing:.24em}
+  .cart-btn,.auth-btn{padding:8px 12px;white-space:nowrap}
+}
 /* layar besar / TV / 4K */
 @media (min-width:1800px){:root{--maxw:1680px}}
 @media (min-width:2400px){:root{--maxw:2000px}html{font-size:118%}body{font-size:16px}}
@@ -757,6 +767,7 @@ footer{
     <h3 class="modal-title">Daftar / Masuk</h3>
     <p class="modal-sub">Masuk pakai akun Google kamu — cepat, aman, tanpa password.</p>
     <div id="googleBtnContainer" style="display:flex;justify-content:center;margin-top:20px"></div>
+    <pre id="loginDiag" style="margin-top:16px;padding:10px 12px;border-radius:10px;background:var(--surface-2);color:var(--muted);font:10.5px/1.6 var(--mono);text-align:left;white-space:pre-wrap;word-break:break-all"></pre>
     <p style="font-size:11px;color:var(--muted);margin-top:20px;line-height:1.6">
       Dengan masuk, kamu setuju dengan syarat & ketentuan DSMD.
     </p>
@@ -910,7 +921,24 @@ footer{
 // ============================================================
 //  CONFIG
 // ============================================================
-const API = 'https://convyl-midtrans-backend.binomo2b.workers.dev/dsmd';
+const API_CANDIDATES = [
+  'https://dsmd-api.binomo2b.workers.dev/dsmd',
+  'https://convyl-midtrans-backend.binomo2b.workers.dev/dsmd'
+];
+let API = API_CANDIDATES[0];
+let apiReady = Promise.resolve();
+// pilih API yang benar-benar hidup (CORS OK diutamakan)
+async function resolveApi(){
+  const probe = async (u, cors) => {
+    const c = new AbortController(); const t = setTimeout(() => c.abort(), 4500);
+    try {
+      await fetch(u + '/auth/me', cors ? { credentials:'include', signal:c.signal } : { mode:'no-cors', signal:c.signal });
+      return true;
+    } catch(e){ return false; } finally { clearTimeout(t); }
+  };
+  for(const u of API_CANDIDATES){ if(await probe(u, true)){ API = u; return; } }
+  for(const u of API_CANDIDATES){ if(await probe(u, false)){ API = u; return; } }
+}
 const GOOGLE_CLIENT_ID = '554107557548-o2q25dcsqj07r3hupdkvtes2tujfri9l.apps.googleusercontent.com';
 const SHIPPING_FLAT = 20000;
 
@@ -950,7 +978,7 @@ function formatRp(n){ return 'Rp ' + Number(n||0).toLocaleString('id-ID'); }
 function formatK(n){ return n >= 1000 ? Math.floor(n/1000) + 'K' : String(n); }
 function openModal(id){
   $(id).classList.add('show');
-  if(id === 'loginModal') renderGoogleButton();
+  if(id === 'loginModal'){ renderGoogleButton(); runLoginDiag(); }
 }
 // THEME
 function toggleTheme(){
@@ -983,7 +1011,25 @@ document.addEventListener('click', e => {
   }
 });
 
-let gsiReady = false, gsiTries = 0;
+let gsiReady = false, gsiTries = 0, lastLoginErr = '';
+function diagShow(lines){ const d = $('loginDiag'); if(d) d.textContent = lines.join('\n'); }
+async function runLoginDiag(){
+  await apiReady;
+  const L = [];
+  L.push('Origin : ' + location.origin + (location.protocol === 'file:' ? '  ✗ (jangan buka dari file://)' : ''));
+  L.push('API    : ' + API);
+  L.push('Google : ' + (gsiReady ? 'siap ✓' : 'belum dimuat ✗'));
+  diagShow(L.concat('Cek server…'));
+  let reach = false;
+  try { await fetch(API + '/auth/me', { mode:'no-cors' }); reach = true; } catch(e){}
+  let corsOk = false, status = '';
+  try { const r = await fetch(API + '/auth/me', { credentials:'include' }); corsOk = true; status = r.status; } catch(e){}
+  if(!reach) L.push('Server : ✗ TIDAK ADA (URL/DNS salah atau worker belum deploy)');
+  else if(!corsOk) L.push('Server : ada, tapi ✗ CORS diblokir (origin belum diizinkan)');
+  else L.push('Server : ✓ OK (status ' + status + ')');
+  if(lastLoginErr) L.push('Error  : ' + lastLoginErr);
+  diagShow(L);
+}
 function initGoogleLogin(){
   if(typeof google === 'undefined' || !google.accounts){
     if(++gsiTries > 40){
@@ -1034,7 +1080,9 @@ async function handleGoogleCredential(response){
     } catch(_){}
   } catch(e){
     const msg = (e instanceof TypeError) ? 'server tidak terjangkau / CORS' : e.message;
+    lastLoginErr = msg;
     showToast('Login gagal: ' + msg);
+    if($('loginModal').classList.contains('show')) runLoginDiag();
   }
 }
 
@@ -1704,8 +1752,8 @@ window.addEventListener('scroll', () => {
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
   initGoogleLogin();
-  checkSession();
-  loadProducts();
+  apiReady = resolveApi();
+  apiReady.then(() => { checkSession(); loadProducts(); });
 });
 
 // Esc untuk tutup modal

@@ -509,21 +509,34 @@ footer{
 .lookbook{grid-auto-flow:dense}
 .lbe-bar{display:none;margin-bottom:22px}
 .lbe-bar.show{display:block}
-.lbe-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:6px}
-.lbe-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
-.lbe-card.dragging{opacity:.4}
-.lbe-card.over{outline:2px dashed var(--accent)}
-.lbe-thumb{position:relative;aspect-ratio:4/3;background:var(--ph);cursor:grab}
-.lbe-thumb img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
-.lbe-num{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.7);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;font-family:var(--mono)}
-.lbe-x{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;font-size:12px;border:none;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lbe-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.lbe-tabs{display:inline-flex;background:var(--surface-2);border-radius:100px;padding:4px}
+.lbe-tab{padding:9px 18px;border-radius:100px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .2s}
+.lbe-tab.on{background:var(--ink);color:var(--bg)}
+.lbe-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lbe-tile{cursor:default}
+.lbe-tile:hover img{transform:none}
+.lbe-tile::after{display:none}
+.lbe-tile.dragging{opacity:.4}
+.lbe-tile.over{outline:2px dashed var(--accent);outline-offset:-2px}
+.lbe-top{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;z-index:3}
+.lbe-grip{background:rgba(0,0,0,.72);color:#fff;font-size:11px;font-weight:700;padding:4px 9px;border-radius:6px;cursor:grab;font-family:var(--mono);user-select:none;-webkit-user-select:none}
+.lbe-x{width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.72);color:#fff;font-size:12px;border:none;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .lbe-x:hover{background:#c8553d}
-.lbe-body{padding:10px;display:grid;gap:8px}
-.lbe-body .input-f{padding:9px 11px;font-size:12.5px;border-radius:8px}
-.lbe-row{display:flex;gap:6px}
-.lbe-btn{flex:1;padding:7px 4px;font-size:11px;font-weight:600;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;font-family:inherit}
-.lbe-btn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.lbe-btn:disabled{opacity:.35;cursor:not-allowed}
+.lbe-panel{position:absolute;left:0;right:0;bottom:0;padding:30px 8px 8px;background:linear-gradient(to top,rgba(0,0,0,.88),rgba(0,0,0,0));display:grid;gap:6px;z-index:3}
+.lbe-label{width:100%;padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.45);color:#fff;font-size:12px;font-family:inherit;outline:none}
+.lbe-label::placeholder{color:rgba(255,255,255,.55)}
+.lbe-label:focus{border-color:#fff}
+.lbe-tt{display:flex;gap:4px}
+.lbe-tb{flex:1;min-width:0;height:26px;border-radius:6px;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:11px;font-weight:600;font-family:inherit;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.lbe-tb.wide{flex:1.7}
+.lbe-tb.on{background:#fff;color:#111}
+.lbe-tb:hover:not(:disabled):not(.on){background:rgba(255,255,255,.35)}
+.lbe-tb:disabled{opacity:.35;cursor:not-allowed}
+.lbe-up{position:absolute;inset:0;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;z-index:4}
+.lbe-add{border:1.5px dashed var(--line);background:var(--surface);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;transition:border-color .2s,color .2s}
+.lbe-add b{font-size:34px;font-weight:300;line-height:1;color:var(--ink)}
+.lbe-add:hover{border-color:var(--accent);color:var(--accent)}
 </style>
 </head>
 <body>
@@ -930,16 +943,21 @@ footer{
   <div class="modal-box modal-wide" style="max-width:960px">
     <button class="modal-close" onclick="closeLookbookEditor()">✕</button>
     <h3 class="modal-title">Edit Lookbook</h3>
-    <p class="modal-sub">Minimal 2 foto. Seret foto atau pakai ◀ ▶ untuk urutan, pilih ukuran untuk tata letak.</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
-      <input type="file" id="lbeFiles" accept="image/*" multiple style="display:none" onchange="lbeHandleFiles(this)">
-      <button type="button" class="btn-primary" style="padding:12px 22px" onclick="document.getElementById('lbeFiles').click()">+ Tambah Foto</button>
-      <button type="button" class="btn-sm ghost" onclick="lbeAutoLayout()">Reset tata letak</button>
+    <p class="modal-sub">Edit langsung di grid: seret ⠿ untuk pindah urutan (di HP pakai ◀ ▶), pilih ikon ukuran untuk tata letak, ketik label, atau ganti foto. Minimal 2 foto.</p>
+    <div class="lbe-toolbar">
+      <div class="lbe-tabs">
+        <button type="button" id="lbeTabEdit" class="lbe-tab on" onclick="lbeSetMode('edit')">✎ Edit</button>
+        <button type="button" id="lbeTabPrev" class="lbe-tab" onclick="lbeSetMode('preview')">👁 Preview</button>
+      </div>
+      <div id="lbeActions" class="lbe-actions">
+        <button type="button" class="btn-sm ghost" onclick="document.getElementById('lbeFiles').click()">+ Tambah beberapa foto</button>
+        <button type="button" class="btn-sm ghost" onclick="lbeAutoLayout()">Reset tata letak</button>
+      </div>
       <span id="lbeState" style="font-size:12px;color:var(--muted)"></span>
     </div>
-    <div id="lbeList" class="lbe-list"></div>
-    <span class="field-label" style="margin-top:26px">Preview</span>
-    <div id="lbePreview" class="lookbook"></div>
+    <input type="file" id="lbeFiles" accept="image/*" multiple style="display:none" onchange="lbeHandleFiles(this)">
+    <input type="file" id="lbeReplaceFile" accept="image/*" style="display:none" onchange="lbeHandleReplace(this)">
+    <div id="lbeCanvas" class="lookbook"></div>
     <div style="display:flex;gap:8px;margin-top:22px;align-items:center;flex-wrap:wrap">
       <button id="lbeSave" onclick="lbeSave()" class="btn-primary" style="padding:12px 24px">Simpan</button>
       <button onclick="closeLookbookEditor()" class="btn-ghost" style="padding:12px 24px">Batal</button>
@@ -2034,11 +2052,19 @@ async function loadLookbook(){
 }
 
 // ---------- Editor ----------
+const LB_ICON = {
+  normal:'<svg viewBox="0 0 16 16" width="14" height="14"><rect x="3" y="3" width="10" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>',
+  tall:'<svg viewBox="0 0 16 16" width="14" height="14"><rect x="4.5" y="1.5" width="7" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>',
+  wide:'<svg viewBox="0 0 16 16" width="14" height="14"><rect x="1.5" y="4.5" width="13" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>'
+};
+let lbeSession = 0, lbeMode = 'edit', lbeReplaceIdx = -1;
+const LB_MAX_BYTES = 15 * 1024 * 1024;
+
 function openLookbookEditor(){
   if(!canAccessPanel()){ showToast('Akses ditolak'); return; }
   closeModal('adminModal');
+  lbeSession++; lbeBusy = 0; lbeDirty = false; lbeMode = 'edit';
   lbeDraft = lookbookItems.map(x => ({ ...x }));
-  lbeDirty = false;
   $('lbeState').textContent = '';
   lbeRender();
   openModal('lookbookModal');
@@ -2050,34 +2076,52 @@ function closeLookbookEditor(force){
   closeModal('lookbookModal');
 }
 
-function lbeRender(){
-  const list = $('lbeList');
-  list.innerHTML = lbeDraft.length ? lbeDraft.map((it, i) => `
-    <div class="lbe-card" data-idx="${i}">
-      <div class="lbe-thumb" draggable="true">
-        <img src="${esc(it.image_url)}" referrerpolicy="no-referrer" alt="">
-        <span class="lbe-num">${i + 1}</span>
-        <button type="button" class="lbe-x" onclick="lbeRemove(${i})" aria-label="Hapus foto">✕</button>
+function lbeSetMode(m){ lbeMode = m; lbeRender(); }
+
+function lbeTileHTML(it, i){
+  const cls = 'look lbe-tile' + (it.size === 'tall' ? ' tall' : it.size === 'wide' ? ' wide' : '');
+  const n = lbeDraft.length;
+  const sizeBtns = Object.keys(LB_SIZES).map(k =>
+    `<button type="button" class="lbe-tb${it.size === k ? ' on' : ''}" title="${LB_SIZES[k]}" onclick="lbeSetSize(${i}, '${k}')">${LB_ICON[k]}</button>`).join('');
+  return `
+    <div class="${cls}" data-idx="${i}">
+      <img src="${esc(it.image_url)}" referrerpolicy="no-referrer" alt="">
+      <div class="lbe-top">
+        <span class="lbe-grip" draggable="true" title="Seret untuk pindah urutan">⠿ ${i + 1}</span>
+        ${it.uploading ? '' : `<button type="button" class="lbe-x" onclick="lbeRemove(${i})" aria-label="Hapus foto">✕</button>`}
       </div>
-      <div class="lbe-body">
-        <input class="input-f" value="${esc(it.label)}" placeholder="Label (opsional)" maxlength="40" oninput="lbeSetLabel(${i}, this.value)">
-        <div class="lbe-row">
-          ${Object.keys(LB_SIZES).map(k => `<button type="button" class="lbe-btn${it.size === k ? ' on' : ''}" onclick="lbeSetSize(${i}, '${k}')">${LB_SIZES[k]}</button>`).join('')}
+      ${it.uploading ? '<div class="lbe-up">Mengunggah…</div>' : `
+      <div class="lbe-panel">
+        <input class="lbe-label" value="${esc(it.label)}" placeholder="Label (opsional)" maxlength="40" oninput="lbeSetLabel(${i}, this.value)">
+        <div class="lbe-tt">
+          ${sizeBtns}
+          <button type="button" class="lbe-tb" title="Geser ke kiri" onclick="lbeMove(${i}, -1)" ${i === 0 ? 'disabled' : ''}>◀</button>
+          <button type="button" class="lbe-tb" title="Geser ke kanan" onclick="lbeMove(${i}, 1)" ${i === n - 1 ? 'disabled' : ''}>▶</button>
+          <button type="button" class="lbe-tb wide" title="Ganti foto" onclick="lbeReplace(${i})">Ganti</button>
         </div>
-        <div class="lbe-row">
-          <button type="button" class="lbe-btn" onclick="lbeMove(${i}, -1)" ${i === 0 ? 'disabled' : ''}>◀</button>
-          <button type="button" class="lbe-btn" onclick="lbeMove(${i}, 1)" ${i === lbeDraft.length - 1 ? 'disabled' : ''}>▶</button>
-        </div>
-      </div>
-    </div>`).join('') : '<div class="pf-img-empty">Belum ada foto. Klik "+ Tambah Foto" (minimal 2 foto).</div>';
-  lbeBindDrag();
-  lbePreview();
+      </div>`}
+    </div>`;
 }
 
-function lbePreview(){
-  $('lbePreview').innerHTML = lbeDraft.length
-    ? lookbookHTML(lbeDraft, false)
-    : '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);font-size:13px">Belum ada foto untuk dipreview</div>';
+function lbeRender(){
+  const edit = lbeMode === 'edit';
+  $('lbeTabEdit').classList.toggle('on', edit);
+  $('lbeTabPrev').classList.toggle('on', !edit);
+  $('lbeActions').style.display = edit ? 'flex' : 'none';
+  const cv = $('lbeCanvas');
+  if(edit){
+    cv.innerHTML = lbeDraft.map(lbeTileHTML).join('') +
+      (lbeDraft.length < LB_MAX ? '<button type="button" class="lbe-add" onclick="document.getElementById(\'lbeFiles\').click()"><b>+</b>Tambah foto</button>' : '');
+    lbeBindDrag();
+  } else {
+    cv.innerHTML = lbeDraft.length
+      ? lookbookHTML(lbeDraft, false)
+      : '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);font-size:13px">Belum ada foto untuk dipreview</div>';
+  }
+  lbeStatus();
+}
+
+function lbeStatus(){
   const n = lbeDraft.length, ok = n >= LB_MIN;
   const c = $('lbeCount');
   c.textContent = n + '/' + LB_MAX + ' foto' + (ok ? '' : ' · minimal ' + LB_MIN);
@@ -2085,7 +2129,7 @@ function lbePreview(){
   $('lbeSave').disabled = !ok || lbeBusy > 0;
 }
 
-function lbeSetLabel(i, v){ lbeDraft[i].label = v; lbeDirty = true; lbePreview(); }
+function lbeSetLabel(i, v){ if(lbeDraft[i]){ lbeDraft[i].label = v; lbeDirty = true; } }
 function lbeSetSize(i, k){ lbeDraft[i].size = k; lbeDirty = true; lbeRender(); }
 function lbeAutoLayout(){ lbeDraft.forEach((it, i) => it.size = lbDefaultSize(i)); lbeDirty = true; lbeRender(); }
 function lbeMove(i, d){
@@ -2102,14 +2146,20 @@ function lbeRemove(i){
 
 function lbeBindDrag(){
   let from = null;
-  document.querySelectorAll('#lbeList .lbe-card').forEach(card => {
-    const idx = parseInt(card.dataset.idx, 10);
-    const th = card.querySelector('.lbe-thumb');
-    th.addEventListener('dragstart', e => { from = idx; card.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
-    th.addEventListener('dragend', () => document.querySelectorAll('#lbeList .lbe-card').forEach(c => c.classList.remove('dragging', 'over')));
-    card.addEventListener('dragover', e => { e.preventDefault(); if(from !== null && from !== idx) card.classList.add('over'); });
-    card.addEventListener('dragleave', () => card.classList.remove('over'));
-    card.addEventListener('drop', e => {
+  document.querySelectorAll('#lbeCanvas .lbe-tile').forEach(tile => {
+    const idx = parseInt(tile.dataset.idx, 10);
+    const grip = tile.querySelector('.lbe-grip');
+    grip.addEventListener('dragstart', e => {
+      from = idx;
+      tile.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(idx));
+      try { e.dataTransfer.setDragImage(tile, 30, 20); } catch(_){}
+    });
+    grip.addEventListener('dragend', () => document.querySelectorAll('#lbeCanvas .lbe-tile').forEach(t => t.classList.remove('dragging', 'over')));
+    tile.addEventListener('dragover', e => { if(from === null) return; e.preventDefault(); if(from !== idx) tile.classList.add('over'); });
+    tile.addEventListener('dragleave', () => tile.classList.remove('over'));
+    tile.addEventListener('drop', e => {
       e.preventDefault();
       if(from === null || from === idx) return;
       const [m] = lbeDraft.splice(from, 1);
@@ -2125,25 +2175,65 @@ async function lbeHandleFiles(input){
   if(!files.length) return;
   const room = LB_MAX - lbeDraft.length;
   if(room <= 0){ showToast('Maksimal ' + LB_MAX + ' foto'); return; }
-  const list = files.slice(0, room);
   if(files.length > room) showToast('Hanya ' + room + ' foto diupload (batas ' + LB_MAX + ')');
 
-  lbeBusy++; lbePreview();
-  let ok = 0, fail = 0;
-  for(let i = 0; i < list.length; i++){
-    const f = list[i];
-    $('lbeState').textContent = `Mengunggah ${i + 1}/${list.length}…`;
-    if(!f.type.startsWith('image/') || f.size > 15 * 1024 * 1024){ fail++; continue; }
+  let fail = 0;
+  const valid = [];
+  files.slice(0, room).forEach(f => {
+    if(f.type.startsWith('image/') && f.size <= LB_MAX_BYTES) valid.push(f); else fail++;
+  });
+  if(!valid.length){ showToast('File harus gambar, maks 15 MB'); return; }
+
+  const sess = lbeSession, draft = lbeDraft;
+  const entries = valid.map((f, k) => ({
+    image_url: URL.createObjectURL(f), _local: null, label: '', uploading: true,
+    size: lbDefaultSize(draft.length + k)
+  }));
+  entries.forEach(e => e._local = e.image_url);
+  draft.push(...entries);
+  lbeDirty = true; lbeBusy += entries.length; lbeMode = 'edit';
+  lbeRender();
+
+  let ok = 0;
+  for(let k = 0; k < entries.length; k++){
+    const e = entries[k];
+    if(sess === lbeSession) $('lbeState').textContent = `Mengunggah ${k + 1}/${entries.length}…`;
     try {
-      const url = await uploadImageFile(f);
-      lbeDraft.push({ image_url: url, label: '', size: lbDefaultSize(lbeDraft.length) });
-      lbeDirty = true; ok++;
-      lbeRender();
-    } catch(e){ fail++; console.error('Upload error:', e); }
+      const url = await uploadImageFile(valid[k]);
+      if(sess === lbeSession){ e.image_url = url; e.uploading = false; ok++; }
+    } catch(err){
+      console.error('Upload error:', err);
+      if(sess === lbeSession){ const ix = draft.indexOf(e); if(ix > -1) draft.splice(ix, 1); fail++; }
+    } finally {
+      URL.revokeObjectURL(e._local);
+      delete e._local;
+    }
+    if(sess === lbeSession){ lbeBusy--; lbeRender(); }
   }
-  lbeBusy--; lbePreview();
-  $('lbeState').textContent = ok ? `✓ ${ok} foto terupload${fail ? ' · ' + fail + ' gagal' : ''}` : 'Semua upload gagal';
-  if(ok) setTimeout(() => { if(!lbeBusy) $('lbeState').textContent = ''; }, 2500);
+  if(sess === lbeSession){
+    $('lbeState').textContent = ok ? `✓ ${ok} foto terupload${fail ? ' · ' + fail + ' gagal' : ''}` : 'Semua upload gagal';
+    if(ok) setTimeout(() => { if(!lbeBusy) $('lbeState').textContent = ''; }, 2500);
+  }
+}
+
+function lbeReplace(i){ lbeReplaceIdx = i; $('lbeReplaceFile').click(); }
+
+async function lbeHandleReplace(input){
+  const f = input.files[0];
+  input.value = '';
+  const it = lbeDraft[lbeReplaceIdx];
+  if(!f || !it) return;
+  if(!f.type.startsWith('image/') || f.size > LB_MAX_BYTES){ showToast('File harus gambar, maks 15 MB'); return; }
+  const sess = lbeSession;
+  it.uploading = true; lbeBusy++; lbeRender();
+  try {
+    const url = await uploadImageFile(f);
+    if(sess === lbeSession){ it.image_url = url; lbeDirty = true; }
+  } catch(e){
+    if(sess === lbeSession) showToast(e instanceof TypeError ? 'Upload gagal: koneksi/CORS' : e.message);
+  } finally {
+    if(sess === lbeSession){ it.uploading = false; lbeBusy--; lbeRender(); }
+  }
 }
 
 async function lbeSave(){
@@ -2167,7 +2257,7 @@ async function lbeSave(){
     showToast('Lookbook tersimpan');
   } catch(e){
     showToast(e instanceof TypeError ? 'Gagal simpan: koneksi/CORS' : e.message);
-  } finally { lbePreview(); }
+  } finally { lbeStatus(); }
 }
 
 // ============================================================

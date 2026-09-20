@@ -537,6 +537,28 @@ footer{
 .lbe-add{border:1.5px dashed var(--line);background:var(--surface);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;transition:border-color .2s,color .2s}
 .lbe-add b{font-size:34px;font-weight:300;line-height:1;color:var(--ink)}
 .lbe-add:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ============ HERO PREVIEW WAR ============ */
+.hv-stage{position:absolute;inset:0}
+.hv-slide{position:absolute;inset:0;opacity:0;transition:opacity .9s ease;pointer-events:none}
+.hv-slide.on{opacity:1;pointer-events:auto}
+.hv-slide.prod{cursor:pointer}
+.hv-nav{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;font-size:22px;line-height:1;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;z-index:3;padding:0;backdrop-filter:blur(6px)}
+.hero-visual:hover .hv-nav{opacity:1}
+@media(max-width:900px){.hv-nav{opacity:.8}}
+.hv-prev{left:10px}
+.hv-next{right:10px}
+.hv-dots{position:absolute;left:0;right:0;bottom:84px;display:flex;justify-content:center;gap:6px;z-index:3}
+.hv-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);border:none;padding:0;cursor:pointer;transition:all .25s}
+.hv-dot.on{background:#fff;width:18px;border-radius:3px}
+.hero-caption .hc-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:58%}
+.hv-edit{position:absolute;top:16px;right:16px;z-index:4;display:none;align-items:center;gap:6px;background:rgba(255,255,255,.94);color:#111;padding:8px 14px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;box-shadow:0 6px 20px -8px rgba(0,0,0,.4)}
+.hv-edit.show{display:flex}
+.hre-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.hre-tile{aspect-ratio:4/5}
+.hre-tile img{position:absolute;inset:0}
+.hre-grid .lbe-add{aspect-ratio:4/5}
+.hre-prev{max-width:380px;margin:0 auto}
 </style>
 </head>
 <body>
@@ -636,12 +658,13 @@ footer{
   </div>
 
   <div class="hero-visual reveal">
-    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&q=80" alt="War Drop Preview">
+    <div class="hv-stage" id="heroSlides"><div class="hv-slide on"><img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&q=80" alt="War Drop Preview"></div></div>
     <div class="hero-badge">Preview War</div>
     <div class="hero-caption">
-      <span>Stok Preview</span>
-      <span class="stock"><span class="stock-bar"><i></i></span><span id="heroStockText">—</span></span>
+      <span class="hc-label">Stok Preview</span>
+      <span class="stock"><span class="stock-bar"><i></i></span><span id="heroStockText" class="hc-text">—</span></span>
     </div>
+    <button type="button" class="hv-edit" id="heroEditBtn" onclick="event.stopPropagation();openHeroEditor()">✎ Edit Preview</button>
   </div>
 </section>
 
@@ -883,6 +906,7 @@ footer{
       <button class="admin-tab" data-tab="orders" data-roles="admin" onclick="switchAdminTab('orders',this)">Pesanan</button>
       <button class="admin-tab" data-tab="users" data-roles="admin" onclick="switchAdminTab('users',this)">Users</button>
       <button class="admin-tab" data-tab="lookbook" data-roles="admin,staff" onclick="switchAdminTab('lookbook',this)">Lookbook</button>
+      <button class="admin-tab" data-tab="hero" data-roles="admin,staff" onclick="switchAdminTab('hero',this)">Preview War</button>
     </div>
 
     <div id="adminTabProducts">
@@ -928,6 +952,11 @@ footer{
       <button onclick="openLookbookEditor()" class="btn-primary" style="padding:12px 22px">✎ Buka Editor Lookbook</button>
     </div>
 
+    <div id="adminTabHero" style="display:none">
+      <p class="modal-sub" style="margin-bottom:16px">Atur foto slideshow "Preview War" di bagian atas halaman depan. Produk war yang ditambahkan bisa otomatis ikut tampil.</p>
+      <button onclick="openHeroEditor()" class="btn-primary" style="padding:12px 22px">✎ Buka Editor Preview War</button>
+    </div>
+
     <div id="adminTabOrders" style="display:none">
       <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
         <button onclick="exportOrders('excel')" class="btn-primary" style="padding:12px 22px">📊 Export Excel</button>
@@ -962,6 +991,36 @@ footer{
       <button id="lbeSave" onclick="lbeSave()" class="btn-primary" style="padding:12px 24px">Simpan</button>
       <button onclick="closeLookbookEditor()" class="btn-ghost" style="padding:12px 24px">Batal</button>
       <span id="lbeCount" style="font-size:12px;color:var(--muted);font-family:var(--mono)"></span>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="heroModal">
+  <div class="modal-box modal-wide" style="max-width:960px">
+    <button class="modal-close" onclick="closeHeroEditor()">✕</button>
+    <h3 class="modal-title">Edit Preview War</h3>
+    <p class="modal-sub">Upload beberapa foto untuk slideshow di bagian atas halaman depan. Seret ⠿ untuk pindah urutan (di HP pakai ◀ ▶). Minimal 2 foto.</p>
+    <div class="lbe-toolbar">
+      <div class="lbe-tabs">
+        <button type="button" id="hreTabEdit" class="lbe-tab on" onclick="hreSetMode('edit')">✎ Edit</button>
+        <button type="button" id="hreTabPrev" class="lbe-tab" onclick="hreSetMode('preview')">👁 Preview</button>
+      </div>
+      <div id="hreActions" class="lbe-actions">
+        <button type="button" class="btn-sm ghost" onclick="document.getElementById('hreFiles').click()">+ Tambah beberapa foto</button>
+      </div>
+      <span id="hreState" style="font-size:12px;color:var(--muted)"></span>
+    </div>
+    <input type="file" id="hreFiles" accept="image/*" multiple style="display:none" onchange="hreHandleFiles(this)">
+    <input type="file" id="hreReplaceFile" accept="image/*" style="display:none" onchange="hreHandleReplace(this)">
+    <div id="hreCanvas"></div>
+    <label style="display:flex;gap:10px;align-items:flex-start;margin-top:20px;font-size:13px;line-height:1.5;cursor:pointer">
+      <input type="checkbox" id="hreInclude" onchange="hreToggleInclude(this.checked)" style="margin-top:3px">
+      <span>Tampilkan produk war yang aktif otomatis sebagai slide (maks 6, hanya yang stoknya masih ada). Produk baru langsung muncul di sini.</span>
+    </label>
+    <div style="display:flex;gap:8px;margin-top:22px;align-items:center;flex-wrap:wrap">
+      <button id="hreSave" onclick="hreSave()" class="btn-primary" style="padding:12px 24px">Simpan</button>
+      <button onclick="closeHeroEditor()" class="btn-ghost" style="padding:12px 24px">Batal</button>
+      <span id="hreCount" style="font-size:12px;color:var(--muted);font-family:var(--mono)"></span>
     </div>
   </div>
 </div>
@@ -1172,6 +1231,8 @@ function applyUserUI(){
   }
   const lbBar = $('lookbookEditBar');
   if(lbBar) lbBar.classList.toggle('show', canAccessPanel());
+  const hvBtn = $('heroEditBtn');
+  if(hvBtn) hvBtn.classList.toggle('show', canAccessPanel());
 }
 
 async function handleLogout(){
@@ -1215,8 +1276,7 @@ function updateHeroAndStats(){
   const totalSold = productsCache.reduce((a,p) => a + (p.stock_total - p.stock_left), 0);
   const totalWarriors = 4000 + totalSold;
 
-  const heroStockText = $('heroStockText');
-  if(heroStockText) heroStockText.textContent = totalStock > 0 ? (totalStock + ' pcs left') : 'Sold Out';
+  renderHero();
 
   const statDropped = $('statDropped');
   if(statDropped) statDropped.textContent = String(productsCache.length).padStart(2, '0');
@@ -1623,7 +1683,7 @@ async function openMyOrders(){
 // ============================================================
 //  ADMIN
 // ============================================================
-const TAB_ROLES = { products:['admin','staff'], orders:['admin'], users:['admin'], lookbook:['admin','staff'] };
+const TAB_ROLES = { products:['admin','staff'], orders:['admin'], users:['admin'], lookbook:['admin','staff'], hero:['admin','staff'] };
 
 function openAdminPanel(){
   if(!canAccessPanel()){ showToast('Akses ditolak'); return; }
@@ -1643,7 +1703,7 @@ function switchAdminTab(tab, btn){
   if(!(TAB_ROLES[tab] || []).includes(getRole())) return;
   document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
-  ['Products','Orders','Users','Lookbook'].forEach(k => {
+  ['Products','Orders','Users','Lookbook','Hero'].forEach(k => {
     $('adminTab' + k).style.display = k.toLowerCase() === tab ? 'block' : 'none';
   });
   if(tab === 'users') loadAdminUsers();
@@ -2260,6 +2320,318 @@ async function lbeSave(){
   } finally { lbeStatus(); }
 }
 
+// ============ HERO: PREVIEW WAR ============
+// BACKEND:
+// GET /hero        → { items: [{ image_url }], include_products: true|false }
+// PUT /admin/hero  → body: { items: [{ image_url }], include_products }  (admin, staff)
+const HERO_MIN = 2, HERO_MAX = 8;
+const HERO_DEFAULT = [{ image_url:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&q=80' }];
+
+let heroConfig = { items: HERO_DEFAULT.map(x => ({ ...x })), include_products: true };
+let heroCurSlide = null, heroSig = '';
+
+function heroBuildSlides(cfg){
+  const slides = (cfg.items || []).filter(it => it && it.image_url).map(it => ({ type:'photo', image_url: it.image_url }));
+  if(cfg.include_products){
+    productsCache.filter(p => p.stock_left > 0 && p.price > 0).slice(0, 6).forEach(p => {
+      const img = Array.isArray(p.images) && p.images.length ? p.images[0] : p.image_url;
+      if(img) slides.push({ type:'product', id:p.id, image_url:img, label:p.name, left:p.stock_left, total:p.stock_total });
+    });
+  }
+  if(!slides.length) HERO_DEFAULT.forEach(d => slides.push({ type:'photo', image_url:d.image_url }));
+  return slides;
+}
+
+function heroTotals(){
+  return productsCache.reduce((a, p) => ({ left: a.left + p.stock_left, total: a.total + p.stock_total }), { left:0, total:0 });
+}
+
+function heroApplyCaption(hv, s){
+  if(!hv) return;
+  const lab = hv.querySelector('.hc-label'), txt = hv.querySelector('.hc-text'), bar = hv.querySelector('.stock-bar i');
+  let label, text, pct;
+  if(s && s.type === 'product'){
+    label = s.label; text = s.left + ' pcs left'; pct = s.total ? s.left / s.total * 100 : 32;
+  } else {
+    const t = heroTotals();
+    label = 'Stok Preview';
+    text = productsCache.length ? (t.left > 0 ? t.left + ' pcs left' : 'Sold Out') : '—';
+    pct = t.total ? t.left / t.total * 100 : 32;
+  }
+  if(lab) lab.textContent = label;
+  if(txt) txt.textContent = text;
+  if(bar) bar.style.width = Math.max(4, Math.min(100, pct)) + '%';
+}
+
+function mountHeroCarousel(root, slides, opts){
+  opts = opts || {};
+  if(root._hvTimer){ clearInterval(root._hvTimer); root._hvTimer = null; }
+  const n = slides.length;
+  if(!n){ root.innerHTML = ''; return; }
+  const hv = root.closest('.hero-visual');
+  root.innerHTML = slides.map((s, i) =>
+    `<div class="hv-slide${i === 0 ? ' on' : ''}${s.type === 'product' ? ' prod' : ''}"><img src="${esc(s.image_url)}" alt="${esc(s.type === 'product' ? s.label : 'War Drop Preview')}" referrerpolicy="no-referrer" decoding="async"></div>`).join('') +
+    (n > 1
+      ? '<button type="button" class="hv-nav hv-prev" aria-label="Sebelumnya">‹</button><button type="button" class="hv-nav hv-next" aria-label="Berikutnya">›</button><div class="hv-dots">' +
+        slides.map((_, i) => `<button type="button" class="hv-dot${i === 0 ? ' on' : ''}" data-go="${i}" aria-label="Foto ${i + 1}"></button>`).join('') + '</div>'
+      : '');
+
+  let cur = 0, paused = false, x0 = null;
+  const go = k => {
+    cur = (k + n) % n;
+    root.querySelectorAll('.hv-slide').forEach((el, i) => el.classList.toggle('on', i === cur));
+    root.querySelectorAll('.hv-dot').forEach((el, i) => el.classList.toggle('on', i === cur));
+    if(root.id === 'heroSlides') heroCurSlide = slides[cur];
+    heroApplyCaption(hv, slides[cur]);
+  };
+  root.onclick = e => {
+    const nav = e.target.closest('.hv-nav'), dot = e.target.closest('.hv-dot');
+    if(nav){ e.stopPropagation(); go(cur + (nav.classList.contains('hv-next') ? 1 : -1)); return; }
+    if(dot){ go(parseInt(dot.dataset.go, 10)); return; }
+    const s = slides[cur];
+    if(opts.clickable && s && s.type === 'product') openProduct(s.id);
+  };
+  root.ontouchstart = e => { x0 = e.touches[0].clientX; };
+  root.ontouchend = e => {
+    if(x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if(n > 1 && Math.abs(dx) > 40) go(cur + (dx < 0 ? 1 : -1));
+  };
+  if(hv){ hv.onmouseenter = () => { paused = true; }; hv.onmouseleave = () => { paused = false; }; }
+  if(n > 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    root._hvTimer = setInterval(() => {
+      if(!root.isConnected){ clearInterval(root._hvTimer); root._hvTimer = null; return; }
+      if(paused || document.hidden) return;
+      go(cur + 1);
+    }, 4500);
+  }
+  go(0);
+}
+
+function renderHero(){
+  const root = $('heroSlides');
+  if(!root) return;
+  const slides = heroBuildSlides(heroConfig);
+  const sig = JSON.stringify(slides.map(s => [s.image_url, s.id || '']));
+  if(sig === heroSig){ heroApplyCaption(root.closest('.hero-visual'), heroCurSlide); return; }
+  heroSig = sig;
+  mountHeroCarousel(root, slides, { clickable: true });
+}
+
+async function loadHero(){
+  try {
+    const r = await fetch(API + '/hero');
+    if(!r.ok) throw new Error('not found');
+    const data = await r.json();
+    const items = (data.items || []).filter(it => it && it.image_url).map(it => ({ image_url: it.image_url }));
+    if(items.length) heroConfig = { items, include_products: data.include_products !== false };
+    else heroConfig = { items: HERO_DEFAULT.map(x => ({ ...x })), include_products: data.include_products !== false };
+  } catch(e){}
+  renderHero();
+}
+
+// ---------- Editor Preview War ----------
+let hreDraft = [], hreInclude = true, hreBusy = 0, hreDirty = false;
+let hreSession = 0, hreMode = 'edit', hreReplaceIdx = -1;
+
+function openHeroEditor(){
+  if(!canAccessPanel()){ showToast('Akses ditolak'); return; }
+  closeModal('adminModal');
+  hreSession++; hreBusy = 0; hreDirty = false; hreMode = 'edit';
+  hreDraft = heroConfig.items.map(x => ({ image_url: x.image_url }));
+  hreInclude = heroConfig.include_products;
+  $('hreInclude').checked = hreInclude;
+  $('hreState').textContent = '';
+  hreRender();
+  openModal('heroModal');
+}
+
+function closeHeroEditor(force){
+  if(force !== true && hreDirty && !confirm('Perubahan belum disimpan. Tutup editor?')) return;
+  hreDirty = false;
+  const p = $('hrePrevSlides');
+  if(p && p._hvTimer){ clearInterval(p._hvTimer); p._hvTimer = null; }
+  closeModal('heroModal');
+}
+
+function hreSetMode(m){ hreMode = m; hreRender(); }
+function hreToggleInclude(v){ hreInclude = v; hreDirty = true; if(hreMode === 'preview') hreRender(); }
+
+function hreTileHTML(it, i){
+  const n = hreDraft.length;
+  return `
+    <div class="look lbe-tile hre-tile" data-idx="${i}">
+      <img src="${esc(it.image_url)}" referrerpolicy="no-referrer" alt="">
+      <div class="lbe-top">
+        <span class="lbe-grip" draggable="true" title="Seret untuk pindah urutan">⠿ ${i + 1}</span>
+        ${it.uploading ? '' : `<button type="button" class="lbe-x" onclick="hreRemove(${i})" aria-label="Hapus foto">✕</button>`}
+      </div>
+      ${it.uploading ? '<div class="lbe-up">Mengunggah…</div>' : `
+      <div class="lbe-panel">
+        <div class="lbe-tt">
+          <button type="button" class="lbe-tb" title="Geser ke kiri" onclick="hreMove(${i}, -1)" ${i === 0 ? 'disabled' : ''}>◀</button>
+          <button type="button" class="lbe-tb" title="Geser ke kanan" onclick="hreMove(${i}, 1)" ${i === n - 1 ? 'disabled' : ''}>▶</button>
+          <button type="button" class="lbe-tb wide" title="Ganti foto" onclick="hreReplace(${i})">Ganti</button>
+        </div>
+      </div>`}
+    </div>`;
+}
+
+function hreRender(){
+  const edit = hreMode === 'edit';
+  $('hreTabEdit').classList.toggle('on', edit);
+  $('hreTabPrev').classList.toggle('on', !edit);
+  $('hreActions').style.display = edit ? 'flex' : 'none';
+  const old = $('hrePrevSlides');
+  if(old && old._hvTimer){ clearInterval(old._hvTimer); old._hvTimer = null; }
+  const cv = $('hreCanvas');
+  if(edit){
+    cv.innerHTML = '<div class="hre-grid">' + hreDraft.map(hreTileHTML).join('') +
+      (hreDraft.length < HERO_MAX ? '<button type="button" class="lbe-add" onclick="document.getElementById(\'hreFiles\').click()"><b>+</b>Tambah foto</button>' : '') + '</div>';
+    hreBindDrag();
+  } else {
+    cv.innerHTML = `<div class="hero-visual hre-prev">
+      <div class="hv-stage" id="hrePrevSlides"></div>
+      <div class="hero-badge">Preview War</div>
+      <div class="hero-caption"><span class="hc-label">Stok Preview</span><span class="stock"><span class="stock-bar"><i></i></span><span class="hc-text">—</span></span></div>
+    </div>`;
+    mountHeroCarousel($('hrePrevSlides'), heroBuildSlides({ items: hreDraft, include_products: hreInclude }), { clickable: false });
+  }
+  hreStatus();
+}
+
+function hreStatus(){
+  const n = hreDraft.length, ok = n >= HERO_MIN;
+  const c = $('hreCount');
+  c.textContent = n + '/' + HERO_MAX + ' foto' + (ok ? '' : ' · minimal ' + HERO_MIN);
+  c.style.color = ok ? 'var(--muted)' : '#c8553d';
+  $('hreSave').disabled = !ok || hreBusy > 0;
+}
+
+function hreMove(i, d){
+  const j = i + d;
+  if(j < 0 || j >= hreDraft.length) return;
+  [hreDraft[i], hreDraft[j]] = [hreDraft[j], hreDraft[i]];
+  hreDirty = true; hreRender();
+}
+function hreRemove(i){
+  if(!confirm('Hapus foto ini dari Preview War?')) return;
+  hreDraft.splice(i, 1);
+  hreDirty = true; hreRender();
+}
+
+function hreBindDrag(){
+  let from = null;
+  document.querySelectorAll('#hreCanvas .hre-tile').forEach(tile => {
+    const idx = parseInt(tile.dataset.idx, 10);
+    const grip = tile.querySelector('.lbe-grip');
+    grip.addEventListener('dragstart', e => {
+      from = idx;
+      tile.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(idx));
+      try { e.dataTransfer.setDragImage(tile, 30, 20); } catch(_){}
+    });
+    grip.addEventListener('dragend', () => document.querySelectorAll('#hreCanvas .hre-tile').forEach(t => t.classList.remove('dragging', 'over')));
+    tile.addEventListener('dragover', e => { if(from === null) return; e.preventDefault(); if(from !== idx) tile.classList.add('over'); });
+    tile.addEventListener('dragleave', () => tile.classList.remove('over'));
+    tile.addEventListener('drop', e => {
+      e.preventDefault();
+      if(from === null || from === idx) return;
+      const [m] = hreDraft.splice(from, 1);
+      hreDraft.splice(idx, 0, m);
+      from = null; hreDirty = true; hreRender();
+    });
+  });
+}
+
+async function hreHandleFiles(input){
+  const files = Array.from(input.files || []);
+  input.value = '';
+  if(!files.length) return;
+  const room = HERO_MAX - hreDraft.length;
+  if(room <= 0){ showToast('Maksimal ' + HERO_MAX + ' foto'); return; }
+  if(files.length > room) showToast('Hanya ' + room + ' foto diupload (batas ' + HERO_MAX + ')');
+
+  let fail = 0;
+  const valid = [];
+  files.slice(0, room).forEach(f => {
+    if(f.type.startsWith('image/') && f.size <= LB_MAX_BYTES) valid.push(f); else fail++;
+  });
+  if(!valid.length){ showToast('File harus gambar, maks 15 MB'); return; }
+
+  const sess = hreSession, draft = hreDraft;
+  const entries = valid.map(f => { const u = URL.createObjectURL(f); return { image_url: u, _local: u, uploading: true }; });
+  draft.push(...entries);
+  hreDirty = true; hreBusy += entries.length; hreMode = 'edit';
+  hreRender();
+
+  let ok = 0;
+  for(let k = 0; k < entries.length; k++){
+    const e = entries[k];
+    if(sess === hreSession) $('hreState').textContent = `Mengunggah ${k + 1}/${entries.length}…`;
+    try {
+      const url = await uploadImageFile(valid[k]);
+      if(sess === hreSession){ e.image_url = url; e.uploading = false; ok++; }
+    } catch(err){
+      console.error('Upload error:', err);
+      if(sess === hreSession){ const ix = draft.indexOf(e); if(ix > -1) draft.splice(ix, 1); fail++; }
+    } finally {
+      URL.revokeObjectURL(e._local);
+      delete e._local;
+    }
+    if(sess === hreSession){ hreBusy--; hreRender(); }
+  }
+  if(sess === hreSession){
+    $('hreState').textContent = ok ? `✓ ${ok} foto terupload${fail ? ' · ' + fail + ' gagal' : ''}` : 'Semua upload gagal';
+    if(ok) setTimeout(() => { if(!hreBusy) $('hreState').textContent = ''; }, 2500);
+  }
+}
+
+function hreReplace(i){ hreReplaceIdx = i; $('hreReplaceFile').click(); }
+
+async function hreHandleReplace(input){
+  const f = input.files[0];
+  input.value = '';
+  const it = hreDraft[hreReplaceIdx];
+  if(!f || !it) return;
+  if(!f.type.startsWith('image/') || f.size > LB_MAX_BYTES){ showToast('File harus gambar, maks 15 MB'); return; }
+  const sess = hreSession;
+  it.uploading = true; hreBusy++; hreRender();
+  try {
+    const url = await uploadImageFile(f);
+    if(sess === hreSession){ it.image_url = url; hreDirty = true; }
+  } catch(e){
+    if(sess === hreSession) showToast(e instanceof TypeError ? 'Upload gagal: koneksi/CORS' : e.message);
+  } finally {
+    if(sess === hreSession){ it.uploading = false; hreBusy--; hreRender(); }
+  }
+}
+
+async function hreSave(){
+  if(!canAccessPanel()){ showToast('Akses ditolak'); return; }
+  if(hreBusy){ showToast('Tunggu upload selesai'); return; }
+  if(hreDraft.length < HERO_MIN){ showToast('Minimal ' + HERO_MIN + ' foto Preview War'); return; }
+  const items = hreDraft.map(it => ({ image_url: it.image_url }));
+  $('hreSave').disabled = true;
+  try {
+    const r = await fetch(API + '/admin/hero', {
+      method: 'PUT', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items, include_products: hreInclude })
+    });
+    let data = {};
+    try { data = await r.json(); } catch(_){}
+    if(!r.ok) throw new Error(data.error || (r.status === 404 ? 'Endpoint /admin/hero belum ada di backend' : 'Gagal simpan (' + r.status + ')'));
+    heroConfig = { items, include_products: hreInclude };
+    renderHero();
+    closeHeroEditor(true);
+    showToast('Preview War tersimpan');
+  } catch(e){
+    showToast(e instanceof TypeError ? 'Gagal simpan: koneksi/CORS' : e.message);
+  } finally { hreStatus(); }
+}
+
 // ============================================================
 //  EXPORT
 // ============================================================
@@ -2410,6 +2782,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkSession();
     loadProducts();
     loadLookbook();
+    loadHero();
   });
 });
 

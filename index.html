@@ -505,18 +505,25 @@ footer{
 .pf-img-item .pf-img-cover{position:absolute;bottom:4px;left:4px;background:var(--accent);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em}
 .pf-img-empty{grid-column:1/-1;padding:20px;text-align:center;font-size:12px;color:var(--muted);border:1.5px dashed var(--line);border-radius:10px}
 
-/* ============ LOOKBOOK ADMIN ============ */
-.lb-row{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;padding:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
-.lb-row img{width:64px;height:64px;object-fit:cover;border-radius:10px;background:var(--ph)}
-.lb-row .lb-info{min-width:0}
-.lb-row .lb-info b{display:block;font-size:14px;font-weight:600;margin-bottom:2px}
-.lb-row .lb-info span{font-size:11.5px;color:var(--muted);font-family:var(--mono);word-break:break-all}
-.lb-row .lb-actions{display:flex;gap:6px}
-@media(max-width:600px){
-  .lb-row{grid-template-columns:56px 1fr;grid-template-rows:auto auto}
-  .lb-row img{width:56px;height:56px;grid-row:span 2}
-  .lb-row .lb-actions{grid-column:1/-1}
-}
+/* ============ LOOKBOOK EDITOR ============ */
+.lookbook{grid-auto-flow:dense}
+.lbe-bar{display:none;margin-bottom:22px}
+.lbe-bar.show{display:block}
+.lbe-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:6px}
+.lbe-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.lbe-card.dragging{opacity:.4}
+.lbe-card.over{outline:2px dashed var(--accent)}
+.lbe-thumb{position:relative;aspect-ratio:4/3;background:var(--ph);cursor:grab}
+.lbe-thumb img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.lbe-num{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.7);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;font-family:var(--mono)}
+.lbe-x{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;font-size:12px;border:none;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lbe-x:hover{background:#c8553d}
+.lbe-body{padding:10px;display:grid;gap:8px}
+.lbe-body .input-f{padding:9px 11px;font-size:12.5px;border-radius:8px}
+.lbe-row{display:flex;gap:6px}
+.lbe-btn{flex:1;padding:7px 4px;font-size:11px;font-weight:600;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;font-family:inherit}
+.lbe-btn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.lbe-btn:disabled{opacity:.35;cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -690,6 +697,9 @@ footer{
   <div class="section-head">
     <h2 class="reveal">Lookbook <em>SS26</em></h2>
     <p class="reveal">Dipoto di Malioboro, sore hari, sama cahaya yang bikin abstrak jadi masuk akal.</p>
+  </div>
+  <div class="lbe-bar" id="lookbookEditBar">
+    <button onclick="openLookbookEditor()" class="btn-primary" style="padding:12px 22px">✎ Edit Lookbook</button>
   </div>
   <div class="lookbook" id="lookbookGrid">
     <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);font-size:13px">Memuat lookbook...</div>
@@ -901,30 +911,8 @@ footer{
     </div>
 
     <div id="adminTabLookbook" style="display:none">
-      <div style="margin-bottom:20px">
-        <button onclick="openLookbookForm()" class="btn-primary" style="padding:12px 22px">+ Tambah Foto Lookbook</button>
-      </div>
-      <div id="adminLookbookList"></div>
-      <div id="lookbookForm" style="display:none;margin-top:24px;padding:22px;background:var(--surface-2);border-radius:14px">
-        <h4 id="lookbookFormTitle" style="font-family:var(--serif);font-size:20px;margin-bottom:16px">Tambah Foto Lookbook</h4>
-        <input type="hidden" id="lbId">
-        <div style="display:grid;gap:14px">
-          <div>
-            <span class="field-label">Label</span>
-            <input id="lbLabel" class="input-f" placeholder="Look N°08">
-          </div>
-          <div>
-            <span class="field-label">Foto (maks 15 MB)</span>
-            <input id="lbFile" type="file" accept="image/*" onchange="lbHandleFile(this)">
-            <img id="lbPreview" alt="" referrerpolicy="no-referrer" style="display:none;margin-top:10px;max-width:200px;border-radius:10px;border:1px solid var(--line)">
-            <div id="lbUpState" style="display:none;margin-top:8px;font-size:12px;color:var(--muted)"></div>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:18px">
-          <button onclick="saveLookbookItem()" class="btn-primary" style="padding:12px 24px">Simpan</button>
-          <button onclick="closeLookbookForm()" class="btn-ghost" style="padding:12px 24px">Batal</button>
-        </div>
-      </div>
+      <p class="modal-sub" style="margin-bottom:16px">Atur foto, urutan, dan tata letak lookbook di halaman depan.</p>
+      <button onclick="openLookbookEditor()" class="btn-primary" style="padding:12px 22px">✎ Buka Editor Lookbook</button>
     </div>
 
     <div id="adminTabOrders" style="display:none">
@@ -934,6 +922,28 @@ footer{
         <button onclick="loadAdminOrders()" class="btn-ghost" style="padding:12px 22px">🔄 Refresh</button>
       </div>
       <div id="adminOrderList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="lookbookModal">
+  <div class="modal-box modal-wide" style="max-width:960px">
+    <button class="modal-close" onclick="closeLookbookEditor()">✕</button>
+    <h3 class="modal-title">Edit Lookbook</h3>
+    <p class="modal-sub">Minimal 2 foto. Seret foto atau pakai ◀ ▶ untuk urutan, pilih ukuran untuk tata letak.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+      <input type="file" id="lbeFiles" accept="image/*" multiple style="display:none" onchange="lbeHandleFiles(this)">
+      <button type="button" class="btn-primary" style="padding:12px 22px" onclick="document.getElementById('lbeFiles').click()">+ Tambah Foto</button>
+      <button type="button" class="btn-sm ghost" onclick="lbeAutoLayout()">Reset tata letak</button>
+      <span id="lbeState" style="font-size:12px;color:var(--muted)"></span>
+    </div>
+    <div id="lbeList" class="lbe-list"></div>
+    <span class="field-label" style="margin-top:26px">Preview</span>
+    <div id="lbePreview" class="lookbook"></div>
+    <div style="display:flex;gap:8px;margin-top:22px;align-items:center;flex-wrap:wrap">
+      <button id="lbeSave" onclick="lbeSave()" class="btn-primary" style="padding:12px 24px">Simpan</button>
+      <button onclick="closeLookbookEditor()" class="btn-ghost" style="padding:12px 24px">Batal</button>
+      <span id="lbeCount" style="font-size:12px;color:var(--muted);font-family:var(--mono)"></span>
     </div>
   </div>
 </div>
@@ -1142,6 +1152,8 @@ function applyUserUI(){
     $('authBtnText').textContent = 'Daftar / Masuk';
     $('adminMenuItem').style.display = 'none';
   }
+  const lbBar = $('lookbookEditBar');
+  if(lbBar) lbBar.classList.toggle('show', canAccessPanel());
 }
 
 async function handleLogout(){
@@ -1617,7 +1629,6 @@ function switchAdminTab(tab, btn){
     $('adminTab' + k).style.display = k.toLowerCase() === tab ? 'block' : 'none';
   });
   if(tab === 'users') loadAdminUsers();
-  if(tab === 'lookbook') loadAdminLookbook();
 }
 
 async function loadAdminProducts(){
@@ -1965,12 +1976,12 @@ async function loadAdminOrders(){
 }
 
 // ============ LOOKBOOK ============
-// ENDPOINT BACKEND:
-// GET    /lookbook              → { items: [{id, image_url, label, position}] }
-// POST   /admin/lookbook        → body: { image_url, label }        (admin,staff)
-// PUT    /admin/lookbook/:id    → body: { image_url, label }        (admin,staff)
-// DELETE /admin/lookbook/:id                                        (admin only)
-
+// BACKEND:
+// GET /lookbook        → { items: [{ image_url, label, size }] }   size: 'normal' | 'tall' | 'wide'
+// PUT /admin/lookbook  → body: { items: [...] }  (admin, staff) — mengganti seluruh isi lookbook
+const LB_MIN = 2, LB_MAX = 12;
+const LB_SIZES = { normal:'Normal', tall:'Tinggi', wide:'Lebar' };
+const LOOKBOOK_PATTERN = ['tall','wide','normal','normal','tall','normal','wide'];
 const LOOKBOOK_FALLBACK = [
   { image_url:'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=700&q=80', label:'Look N°01' },
   { image_url:'https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?w=900&q=80', label:'Look N°02' },
@@ -1981,174 +1992,182 @@ const LOOKBOOK_FALLBACK = [
   { image_url:'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&q=80', label:'Look N°07' }
 ];
 
-const LOOKBOOK_PATTERN = ['tall','wide','normal','normal','tall','normal','wide'];
+let lookbookItems = [];
+let lbeDraft = [];
+let lbeBusy = 0;
+let lbeDirty = false;
+
+const lbDefaultSize = i => LOOKBOOK_PATTERN[i % LOOKBOOK_PATTERN.length];
+function lbNormalize(items){
+  return (items || []).filter(it => it && it.image_url).map((it, i) => ({
+    image_url: it.image_url,
+    label: it.label || '',
+    size: LB_SIZES[it.size] ? it.size : lbDefaultSize(i)
+  }));
+}
+
+function lookbookHTML(items, reveal){
+  return items.map((it, i) => {
+    const cls = 'look' + (it.size === 'tall' ? ' tall' : it.size === 'wide' ? ' wide' : '') + (reveal ? ' reveal' : '');
+    const label = it.label || ('Look N°' + String(i + 1).padStart(2, '0'));
+    return `<div class="${cls}"><img src="${esc(it.image_url)}" referrerpolicy="no-referrer" alt="" loading="lazy"><span class="look-label">${esc(label)}</span></div>`;
+  }).join('');
+}
 
 function renderLookbookSection(items){
   const grid = $('lookbookGrid');
   if(!grid) return;
-  if(!items.length){ grid.innerHTML = ''; return; }
-  grid.innerHTML = items.map((it, i) => {
-    const cls = LOOKBOOK_PATTERN[i % LOOKBOOK_PATTERN.length];
-    const clsStr = cls === 'tall' ? 'look tall reveal' : cls === 'wide' ? 'look wide reveal' : 'look reveal';
-    const label = it.label || ('Look N°' + String(i+1).padStart(2,'0'));
-    return `<div class="${clsStr}"><img src="${it.image_url}" referrerpolicy="no-referrer" alt="" loading="lazy"><span class="look-label">${esc(label)}</span></div>`;
-  }).join('');
+  grid.innerHTML = lookbookHTML(items, true);
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 }
 
 async function loadLookbook(){
+  let items = [];
   try {
     const r = await fetch(API + '/lookbook');
     if(!r.ok) throw new Error('not found');
     const data = await r.json();
-    const items = data.items || [];
-    if(items.length) renderLookbookSection(items);
-    else renderLookbookSection(LOOKBOOK_FALLBACK);
-  } catch(e){
-    renderLookbookSection(LOOKBOOK_FALLBACK);
-  }
+    items = lbNormalize(data.items);
+  } catch(e){}
+  lookbookItems = items.length ? items : lbNormalize(LOOKBOOK_FALLBACK);
+  renderLookbookSection(lookbookItems);
 }
 
-async function loadAdminLookbook(){
-  const box = $('adminLookbookList');
-  if(!box) return;
-  box.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">Memuat...</div>';
-  try {
-    const r = await fetch(API + '/lookbook');
-    const data = await r.json();
-    const items = data.items || [];
-    if(!items.length){
-      box.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">Belum ada foto lookbook. Klik "+ Tambah Foto Lookbook".</div>';
-      return;
-    }
-    box.innerHTML = items.map(it => `
-      <div class="lb-row">
-        <img src="${it.image_url}" referrerpolicy="no-referrer" alt="">
-        <div class="lb-info">
-          <b>${esc(it.label || '(tanpa label)')}</b>
-          <span>${esc(it.image_url)}</span>
+// ---------- Editor ----------
+function openLookbookEditor(){
+  if(!canAccessPanel()){ showToast('Akses ditolak'); return; }
+  closeModal('adminModal');
+  lbeDraft = lookbookItems.map(x => ({ ...x }));
+  lbeDirty = false;
+  $('lbeState').textContent = '';
+  lbeRender();
+  openModal('lookbookModal');
+}
+
+function closeLookbookEditor(force){
+  if(force !== true && lbeDirty && !confirm('Perubahan belum disimpan. Tutup editor?')) return;
+  lbeDirty = false;
+  closeModal('lookbookModal');
+}
+
+function lbeRender(){
+  const list = $('lbeList');
+  list.innerHTML = lbeDraft.length ? lbeDraft.map((it, i) => `
+    <div class="lbe-card" data-idx="${i}">
+      <div class="lbe-thumb" draggable="true">
+        <img src="${esc(it.image_url)}" referrerpolicy="no-referrer" alt="">
+        <span class="lbe-num">${i + 1}</span>
+        <button type="button" class="lbe-x" onclick="lbeRemove(${i})" aria-label="Hapus foto">✕</button>
+      </div>
+      <div class="lbe-body">
+        <input class="input-f" value="${esc(it.label)}" placeholder="Label (opsional)" maxlength="40" oninput="lbeSetLabel(${i}, this.value)">
+        <div class="lbe-row">
+          ${Object.keys(LB_SIZES).map(k => `<button type="button" class="lbe-btn${it.size === k ? ' on' : ''}" onclick="lbeSetSize(${i}, '${k}')">${LB_SIZES[k]}</button>`).join('')}
         </div>
-        <div class="lb-actions">
-          <button class="btn-sm ghost" onclick="editLookbookItem('${it.id}')">Edit</button>
-          ${isAdmin() ? `<button class="btn-sm danger" onclick="deleteLookbookItem('${it.id}')">Hapus</button>` : ''}
+        <div class="lbe-row">
+          <button type="button" class="lbe-btn" onclick="lbeMove(${i}, -1)" ${i === 0 ? 'disabled' : ''}>◀</button>
+          <button type="button" class="lbe-btn" onclick="lbeMove(${i}, 1)" ${i === lbeDraft.length - 1 ? 'disabled' : ''}>▶</button>
         </div>
       </div>
-    `).join('');
-  } catch(e){
-    box.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">Gagal memuat. Pastikan endpoint /lookbook sudah ada di backend.</div>';
-  }
+    </div>`).join('') : '<div class="pf-img-empty">Belum ada foto. Klik "+ Tambah Foto" (minimal 2 foto).</div>';
+  lbeBindDrag();
+  lbePreview();
 }
 
-let lbImageUrl = '';
-let lbUploading = false;
-
-function lbUpState(msg){
-  const el = $('lbUpState');
-  if(!el) return;
-  el.textContent = msg || '';
-  el.style.display = msg ? 'block' : 'none';
+function lbePreview(){
+  $('lbePreview').innerHTML = lbeDraft.length
+    ? lookbookHTML(lbeDraft, false)
+    : '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);font-size:13px">Belum ada foto untuk dipreview</div>';
+  const n = lbeDraft.length, ok = n >= LB_MIN;
+  const c = $('lbeCount');
+  c.textContent = n + '/' + LB_MAX + ' foto' + (ok ? '' : ' · minimal ' + LB_MIN);
+  c.style.color = ok ? 'var(--muted)' : '#c8553d';
+  $('lbeSave').disabled = !ok || lbeBusy > 0;
 }
 
-function lbSetPreview(url){
-  const im = $('lbPreview');
-  if(!im) return;
-  im.src = url || '';
-  im.style.display = url ? 'block' : 'none';
+function lbeSetLabel(i, v){ lbeDraft[i].label = v; lbeDirty = true; lbePreview(); }
+function lbeSetSize(i, k){ lbeDraft[i].size = k; lbeDirty = true; lbeRender(); }
+function lbeAutoLayout(){ lbeDraft.forEach((it, i) => it.size = lbDefaultSize(i)); lbeDirty = true; lbeRender(); }
+function lbeMove(i, d){
+  const j = i + d;
+  if(j < 0 || j >= lbeDraft.length) return;
+  [lbeDraft[i], lbeDraft[j]] = [lbeDraft[j], lbeDraft[i]];
+  lbeDirty = true; lbeRender();
+}
+function lbeRemove(i){
+  if(!confirm('Hapus foto ini dari lookbook?')) return;
+  lbeDraft.splice(i, 1);
+  lbeDirty = true; lbeRender();
 }
 
-async function lbHandleFile(input){
-  const f = input.files[0];
-  if(!f) return;
-  if(!f.type.startsWith('image/')){ showToast('File harus gambar'); input.value = ''; return; }
-  if(f.size > 15 * 1024 * 1024){ showToast('Maks 15 MB'); input.value = ''; return; }
-
-  const local = URL.createObjectURL(f);
-  lbSetPreview(local);
-  lbUploading = true;
-  lbUpState('Mengunggah…');
-  try {
-    const url = await uploadImageFile(f);
-    lbImageUrl = url;
-    lbSetPreview(url);
-    lbUpState('✓ Terupload');
-    setTimeout(() => lbUpState(''), 2000);
-  } catch(e){
-    lbImageUrl = '';
-    lbSetPreview('');
-    input.value = '';
-    lbUpState('');
-    showToast(e instanceof TypeError ? 'Upload gagal: koneksi/CORS' : e.message);
-  } finally {
-    lbUploading = false;
-    URL.revokeObjectURL(local);
-  }
-}
-
-function openLookbookForm(){
-  $('lookbookForm').style.display = 'block';
-  $('lookbookFormTitle').textContent = 'Tambah Foto Lookbook';
-  $('lbId').value = '';
-  $('lbLabel').value = '';
-  $('lbFile').value = '';
-  lbImageUrl = '';
-  lbSetPreview('');
-  lbUpState('');
-  $('lookbookForm').scrollIntoView({ behavior:'smooth', block:'nearest' });
-}
-
-function closeLookbookForm(){ $('lookbookForm').style.display = 'none'; }
-
-async function editLookbookItem(id){
-  try {
-    const r = await fetch(API + '/lookbook');
-    const data = await r.json();
-    const it = (data.items || []).find(x => x.id === id);
-    if(!it) return;
-    $('lookbookForm').style.display = 'block';
-    $('lookbookFormTitle').textContent = 'Edit Foto Lookbook';
-    $('lbId').value = it.id;
-    $('lbLabel').value = it.label || '';
-    lbImageUrl = it.image_url || '';
-    lbSetPreview(lbImageUrl);
-    lbUpState('');
-  } catch(e){ showToast('Gagal load item'); }
-}
-
-async function saveLookbookItem(){
-  if(!canAccessPanel()){ showToast('Akses ditolak'); return; }
-  if(lbUploading){ showToast('Tunggu upload selesai'); return; }
-  if(!lbImageUrl){ showToast('Upload foto dulu'); return; }
-
-  const id = $('lbId').value;
-  const url = id ? API + '/admin/lookbook/' + id : API + '/admin/lookbook';
-  const method = id ? 'PUT' : 'POST';
-  const body = { image_url: lbImageUrl, label: $('lbLabel').value.trim() };
-
-  try {
-    const r = await fetch(url, {
-      method, credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+function lbeBindDrag(){
+  let from = null;
+  document.querySelectorAll('#lbeList .lbe-card').forEach(card => {
+    const idx = parseInt(card.dataset.idx, 10);
+    const th = card.querySelector('.lbe-thumb');
+    th.addEventListener('dragstart', e => { from = idx; card.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+    th.addEventListener('dragend', () => document.querySelectorAll('#lbeList .lbe-card').forEach(c => c.classList.remove('dragging', 'over')));
+    card.addEventListener('dragover', e => { e.preventDefault(); if(from !== null && from !== idx) card.classList.add('over'); });
+    card.addEventListener('dragleave', () => card.classList.remove('over'));
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      if(from === null || from === idx) return;
+      const [m] = lbeDraft.splice(from, 1);
+      lbeDraft.splice(idx, 0, m);
+      from = null; lbeDirty = true; lbeRender();
     });
-    const data = await r.json();
-    if(!r.ok) throw new Error(data.error || 'Gagal simpan');
-    showToast('Lookbook tersimpan');
-    closeLookbookForm();
-    loadAdminLookbook();
-    loadLookbook();
-  } catch(e){ showToast(e.message); }
+  });
 }
 
-async function deleteLookbookItem(id){
-  if(!isAdmin()){ showToast('Akses ditolak'); return; }
-  if(!confirm('Hapus foto lookbook ini?')) return;
+async function lbeHandleFiles(input){
+  const files = Array.from(input.files || []);
+  input.value = '';
+  if(!files.length) return;
+  const room = LB_MAX - lbeDraft.length;
+  if(room <= 0){ showToast('Maksimal ' + LB_MAX + ' foto'); return; }
+  const list = files.slice(0, room);
+  if(files.length > room) showToast('Hanya ' + room + ' foto diupload (batas ' + LB_MAX + ')');
+
+  lbeBusy++; lbePreview();
+  let ok = 0, fail = 0;
+  for(let i = 0; i < list.length; i++){
+    const f = list[i];
+    $('lbeState').textContent = `Mengunggah ${i + 1}/${list.length}…`;
+    if(!f.type.startsWith('image/') || f.size > 15 * 1024 * 1024){ fail++; continue; }
+    try {
+      const url = await uploadImageFile(f);
+      lbeDraft.push({ image_url: url, label: '', size: lbDefaultSize(lbeDraft.length) });
+      lbeDirty = true; ok++;
+      lbeRender();
+    } catch(e){ fail++; console.error('Upload error:', e); }
+  }
+  lbeBusy--; lbePreview();
+  $('lbeState').textContent = ok ? `✓ ${ok} foto terupload${fail ? ' · ' + fail + ' gagal' : ''}` : 'Semua upload gagal';
+  if(ok) setTimeout(() => { if(!lbeBusy) $('lbeState').textContent = ''; }, 2500);
+}
+
+async function lbeSave(){
+  if(!canAccessPanel()){ showToast('Akses ditolak'); return; }
+  if(lbeBusy){ showToast('Tunggu upload selesai'); return; }
+  if(lbeDraft.length < LB_MIN){ showToast('Minimal ' + LB_MIN + ' foto lookbook'); return; }
+  const items = lbeDraft.map(it => ({ image_url: it.image_url, label: (it.label || '').trim(), size: it.size }));
+  $('lbeSave').disabled = true;
   try {
-    const r = await fetch(API + '/admin/lookbook/' + id, { method:'DELETE', credentials:'include' });
-    if(!r.ok) throw new Error('Gagal hapus');
-    showToast('Foto dihapus');
-    loadAdminLookbook();
-    loadLookbook();
-  } catch(e){ showToast(e.message); }
+    const r = await fetch(API + '/admin/lookbook', {
+      method: 'PUT', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items })
+    });
+    let data = {};
+    try { data = await r.json(); } catch(_){}
+    if(!r.ok) throw new Error(data.error || (r.status === 404 ? 'Endpoint /admin/lookbook belum ada di backend' : 'Gagal simpan (' + r.status + ')'));
+    lookbookItems = lbNormalize(items);
+    renderLookbookSection(lookbookItems);
+    closeLookbookEditor(true);
+    showToast('Lookbook tersimpan');
+  } catch(e){
+    showToast(e instanceof TypeError ? 'Gagal simpan: koneksi/CORS' : e.message);
+  } finally { lbePreview(); }
 }
 
 // ============================================================

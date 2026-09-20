@@ -952,6 +952,20 @@ footer{
     </div>
 
     <div id="adminTabUsers" style="display:none">
+      <div style="margin-bottom:20px;padding:18px 20px;background:var(--surface-2);border-radius:14px">
+        <div class="field-label" style="margin-bottom:10px">🎁 Gift Role</div>
+        <p class="modal-sub" style="margin:0 0 12px;font-size:12.5px">Kasih role staff/admin ke email tim. Kalau orangnya belum pernah login, role otomatis aktif begitu dia login pertama kali.</p>
+        <div style="display:grid;grid-template-columns:1fr 140px auto;gap:10px;align-items:end">
+          <div><span class="field-label">Email</span><input id="giftEmail" class="input-f" type="email" placeholder="nama@email.com" onkeydown="if(event.key==='Enter')sendGiftRole()"></div>
+          <div><span class="field-label">Role</span>
+            <select id="giftRoleSelect" class="input-f">
+              <option value="staff">Staff</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <button onclick="sendGiftRole()" class="btn-primary" style="padding:12px 20px;white-space:nowrap">Gift Role</button>
+        </div>
+      </div>
       <div style="margin-bottom:20px">
         <button onclick="loadAdminUsers()" class="btn-ghost" style="padding:12px 22px">🔄 Refresh</button>
       </div>
@@ -2000,6 +2014,18 @@ async function loadAdminUsers(){
     const users = data.users || [];
     if(!users.length){ box.innerHTML = usersMsg('Belum ada user'); return; }
     box.innerHTML = users.map(u => {
+      if(u.pending){
+        const ini = esc((u.email || '?').trim()[0].toUpperCase());
+        return `
+        <div class="order-row" style="opacity:.85">
+          <div style="width:38px;height:38px;border-radius:50%;background:var(--surface-3,#e5e5e5);color:var(--ink);display:flex;align-items:center;justify-content:center;font-weight:600">🎁</div>
+          <div>
+            <div style="font-weight:600">${esc(u.email)}</div>
+            <div class="order-meta">Gift role: <b>${esc(u.role)}</b> · menunggu login pertama</div>
+          </div>
+          <div class="order-actions"><button class="btn-sm danger" onclick="cancelGiftRole(this,'${esc(u.email)}')">Batalkan</button></div>
+        </div>`;
+      }
       const role = ROLES.includes(u.role) ? u.role : (u.is_admin ? 'admin' : 'customer');
       const ini = esc((u.name || u.email || '?').trim()[0].toUpperCase());
       return `
@@ -2016,6 +2042,40 @@ async function loadAdminUsers(){
       </div>`;
     }).join('');
   } catch(e){ box.innerHTML = usersMsg(esc(e.message)); }
+}
+
+async function sendGiftRole(){
+  if(!isAdmin()) return;
+  const emailEl = $('giftEmail'), roleEl = $('giftRoleSelect');
+  const email = emailEl.value.trim(), role = roleEl.value;
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showToast('Email tidak valid'); return; }
+  try {
+    const r = await fetch(API + '/admin/users/gift', {
+      method:'POST', credentials:'include',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ email, role })
+    });
+    const d = await r.json().catch(() => ({}));
+    if(!r.ok) throw new Error(d.error || (r.status === 404 ? 'Endpoint belum tersedia' : 'Gagal gift role'));
+    emailEl.value = '';
+    showToast(d.applied ? 'Role langsung diterapkan' : 'Role akan aktif saat orang ini login pertama kali');
+    loadAdminUsers();
+  } catch(e){ showToast(e.message); }
+}
+
+async function cancelGiftRole(btn, email){
+  if(!isAdmin()) return;
+  if(!confirm('Batalkan gift role untuk ' + email + '?')) return;
+  btn.disabled = true;
+  try {
+    const r = await fetch(API + '/admin/users/gift/' + encodeURIComponent(email), { method:'DELETE', credentials:'include' });
+    if(!r.ok){
+      const d = await r.json().catch(() => ({}));
+      throw new Error(d.error || 'Gagal membatalkan');
+    }
+    showToast('Gift role dibatalkan');
+    loadAdminUsers();
+  } catch(e){ showToast(e.message); btn.disabled = false; }
 }
 
 async function saveUserRole(btn){

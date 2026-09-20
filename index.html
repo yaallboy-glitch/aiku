@@ -925,6 +925,20 @@ const API_CANDIDATES = [
   'https://dsmd-worker.agung-cemplon.workers.dev/dsmd'
 ];
 let API = API_CANDIDATES[0];
+const TOKEN_KEY = 'dsmd-token';
+const getToken = () => { try { return localStorage.getItem(TOKEN_KEY); } catch(e){ return null; } };
+const setToken = t => { try { t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY); } catch(e){} };
+const _fetch = window.fetch.bind(window);
+window.fetch = (input, init = {}) => {
+  try {
+    const url = typeof input === 'string' ? input : (input && input.url);
+    const t = getToken();
+    if(t && url && url.startsWith(API) && init.mode !== 'no-cors'){
+      init = { ...init, headers: { ...(init.headers || {}), Authorization: 'Bearer ' + t } };
+    }
+  } catch(e){}
+  return _fetch(input, init);
+};
 let apiReady = Promise.resolve();
 // pilih API yang benar-benar hidup (CORS OK diutamakan)
 async function resolveApi(){
@@ -1068,6 +1082,7 @@ async function handleGoogleCredential(response){
     let data = {};
     try { data = await r.json(); } catch(_){}
     if(!r.ok) throw new Error(data.error || ('Server ' + r.status));
+    if(data.token) setToken(data.token);
     currentUser = data.user;
     applyUserUI();
     closeModal('loginModal');
@@ -1092,7 +1107,7 @@ async function checkSession(){
       const data = await r.json();
       currentUser = data.user;
       applyUserUI();
-    }
+    } else if(r.status === 401){ setToken(null); }
   } catch(e){ /* diamkan */ }
 }
 
@@ -1114,6 +1129,7 @@ async function handleLogout(){
   try {
     await fetch(API + '/auth/logout', { method: 'POST', credentials: 'include' });
   } catch(e){}
+  setToken(null);
   currentUser = null;
   closeModal('adminModal');
   $('userMenu').classList.remove('show');

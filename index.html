@@ -136,6 +136,9 @@ textarea.input-f{resize:vertical;min-height:80px;line-height:1.55}
 .badge-paid{background:#d4edda;color:#155724}
 .badge-shipped{background:#cfe2ff;color:#084298}
 .badge-cancelled{background:#f8d7da;color:#721c24}
+.card-owned{display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:3px 9px;border-radius:100px;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;background:var(--surface-2);color:var(--muted)}
+.orders-section-title{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--muted);margin:22px 0 10px;padding-top:4px}
+.orders-section-title:first-child{margin-top:0}
 :root[data-theme="dark"] .badge-pending{background:rgba(255,193,7,.16);color:#ffd766}
 :root[data-theme="dark"] .badge-paid{background:rgba(40,167,69,.18);color:#7fdc98}
 :root[data-theme="dark"] .badge-shipped{background:rgba(13,110,253,.2);color:#8db8ff}
@@ -1101,6 +1104,7 @@ const SHIPPING_FLAT = 20000;
 // ============================================================
 let currentUser = null;
 let productsCache = [];
+let purchasedProductIds = new Set();
 let currentProduct = null;
 let currentQty = 1;
 let currentSize = null;
@@ -1257,9 +1261,11 @@ function applyUserUI(){
     currentUser.role = getRole();
     $('adminMenuItem').style.display = canAccessPanel() ? 'flex' : 'none';
     $('adminMenuItem').textContent = isAdmin() ? '⚙ Panel Admin' : '⚙ Panel Staff';
+    loadPurchasedProducts();
   } else {
     $('authBtnText').textContent = 'Daftar / Masuk';
     $('adminMenuItem').style.display = 'none';
+    purchasedProductIds = new Set();
   }
   const lbBar = $('lookbookEditBar');
   if(lbBar) lbBar.classList.toggle('show', canAccessPanel());
@@ -1276,6 +1282,7 @@ async function handleLogout(){
   closeModal('adminModal');
   $('userMenu').classList.remove('show');
   applyUserUI();
+  if(productsCache.length) renderProducts(productsCache);
   showToast('Sudah keluar');
 }
 
@@ -1301,6 +1308,20 @@ async function loadProducts(){
     renderProducts(productsCache);
   }
   updateHeroAndStats();
+}
+
+async function loadPurchasedProducts(){
+  if(!currentUser){ purchasedProductIds = new Set(); return; }
+  try {
+    const r = await fetch(API + '/orders/mine', { credentials: 'include' });
+    if(!r.ok) return;
+    const data = await r.json();
+    const orders = data.orders || [];
+    purchasedProductIds = new Set(
+      orders.filter(o => o.status === 'paid' || o.status === 'shipped').map(o => o.product_id)
+    );
+    if(productsCache.length) renderProducts(productsCache);
+  } catch(e){}
 }
 
 function updateHeroAndStats(){
@@ -1333,6 +1354,7 @@ function renderProducts(products){
     const quickClass = p.stock_left === 0 ? 'card-quick sold' : 'card-quick';
     const quickText = p.stock_left === 0 ? 'Sold Out' : 'Ikut War →';
     const cover = (Array.isArray(p.images) && p.images.length ? p.images[0] : p.image_url) || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=700';
+    const owned = purchasedProductIds.has(p.id);
     return `
       <article class="card reveal" onclick="openProduct('${p.id}')">
         <div class="card-img">
@@ -1345,6 +1367,7 @@ function renderProducts(products){
           <div>
             <h3>${p.name}</h3>
             <div class="desc">${p.description || ''}</div>
+            ${owned ? '<div class="card-owned">✓ Sudah pernah dipesan</div>' : ''}
           </div>
           <div class="card-price"><span class="cur">Rp</span>${formatK(p.price)}</div>
         </div>
@@ -1684,6 +1707,20 @@ async function submitOrder(){
 // ============================================================
 //  MY ORDERS
 // ============================================================
+function orderRowHtml(o){
+  return `
+    <div class="order-row">
+      <img class="order-thumb" referrerpolicy="no-referrer" src="${o.product_image || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200'}" alt="">
+      <div>
+        <div style="font-weight:600">${o.product_name}</div>
+        <div class="order-meta">Ukuran ${o.size} · ${o.qty} pcs · ${formatRp(o.total)}</div>
+        <div class="order-meta">${new Date(o.created_at).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })}</div>
+      </div>
+      <span class="badge-status badge-${o.status}">${statusLabel(o.status)}</span>
+    </div>
+  `;
+}
+
 async function openMyOrders(){
   if(!currentUser){ openModal('loginModal'); return; }
   openModal('myOrdersModal');
@@ -1696,17 +1733,17 @@ async function openMyOrders(){
       $('myOrdersList').innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">Belum ada pesanan. Ikut war yuk!</div>';
       return;
     }
-    $('myOrdersList').innerHTML = orders.map(o => `
-      <div class="order-row">
-        <img class="order-thumb" referrerpolicy="no-referrer" src="${o.product_image || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200'}" alt="">
-        <div>
-          <div style="font-weight:600">${o.product_name}</div>
-          <div class="order-meta">Ukuran ${o.size} · ${o.qty} pcs · ${formatRp(o.total)}</div>
-          <div class="order-meta">${new Date(o.created_at).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })}</div>
-        </div>
-        <span class="badge-status badge-${o.status}">${statusLabel(o.status)}</span>
-      </div>
-    `).join('');
+    const cutoff = Date.now() - 24 * 3600 * 1000;
+    const terbaru = orders.filter(o => new Date(o.created_at).getTime() >= cutoff);
+    const riwayat = orders.filter(o => new Date(o.created_at).getTime() < cutoff);
+    let html = '';
+    if(terbaru.length){
+      html += '<div class="orders-section-title">🆕 Pesanan Terbaru</div>' + terbaru.map(orderRowHtml).join('');
+    }
+    if(riwayat.length){
+      html += '<div class="orders-section-title">📦 Riwayat Sebelumnya</div>' + riwayat.map(orderRowHtml).join('');
+    }
+    $('myOrdersList').innerHTML = html;
   } catch(e){
     $('myOrdersList').innerHTML = '<div style="color:var(--accent);text-align:center;padding:40px">Gagal memuat pesanan</div>';
   }

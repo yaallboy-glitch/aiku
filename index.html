@@ -884,8 +884,9 @@ footer{
           <div>
             <span class="field-label">Gambar Produk</span>
             <input id="pfImg" class="input-f" placeholder="https://... (URL)" oninput="pfImgUrlInput()">
-            <div style="margin:8px 0;font-size:12px;color:var(--muted)">atau upload dari perangkat (maks 2 MB)</div>
+            <div style="margin:8px 0;font-size:12px;color:var(--muted)">atau upload dari perangkat (maks 15 MB, kualitas asli)</div>
             <input id="pfFile" type="file" accept="image/*" onchange="pfHandleFile(this)">
+            <div id="pfUpState" style="display:none;margin-top:8px;font-size:12px;color:var(--muted)"></div>
             <img id="pfPreview" alt="" style="display:none;margin-top:10px;width:96px;height:96px;object-fit:cover;border-radius:10px;border:1px solid var(--line)">
           </div>
           <div><span class="field-label">Ukuran (pisahkan koma)</span><input id="pfSizes" class="input-f" value="S, M, L, XL"></div>
@@ -1434,28 +1435,44 @@ function pfImgUrlInput(){
   pfImageData = ''; $('pfFile').value = '';
   pfSetPreview($('pfImg').value.trim());
 }
-function pfHandleFile(input){
+let pfUploading = false;
+function pfUpState(msg){
+  const el = $('pfUpState');
+  el.textContent = msg || '';
+  el.style.display = msg ? 'block' : 'none';
+}
+async function pfHandleFile(input){
   const f = input.files[0];
   if(!f) return;
   if(!f.type.startsWith('image/')){ showToast('File harus berupa gambar'); input.value = ''; return; }
-  if(f.size > 2 * 1024 * 1024){ showToast('Ukuran maksimal 2 MB'); input.value = ''; return; }
-  const url = URL.createObjectURL(f);
-  const img = new Image();
-  img.onload = () => {
-    const s = Math.min(1, 800 / Math.max(img.width, img.height));
-    const c = document.createElement('canvas');
-    c.width = Math.round(img.width * s);
-    c.height = Math.round(img.height * s);
-    const ctx = c.getContext('2d');
-    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
-    ctx.drawImage(img, 0, 0, c.width, c.height);
-    pfImageData = c.toDataURL('image/jpeg', 0.85);
-    URL.revokeObjectURL(url);
+  if(f.size > 15 * 1024 * 1024){ showToast('Ukuran maksimal 15 MB'); input.value = ''; return; }
+  // preview lokal langsung, upload jalan di belakang
+  const local = URL.createObjectURL(f);
+  pfSetPreview(local);
+  pfUploading = true;
+  pfUpState('Mengunggah ' + (f.size / 1048576).toFixed(1) + ' MB…');
+  try {
+    const fd = new FormData();
+    fd.append('image', f, f.name || 'foto.jpg');
+    const r = await fetch(API + '/admin/upload', { method:'POST', credentials:'include', body: fd });
+    let data = {};
+    try { data = await r.json(); } catch(_){}
+    if(!r.ok || !data.url) throw new Error(data.error || ('Upload gagal (' + r.status + ')'));
+    $('pfImg').value = data.url;
+    pfImageData = '';
+    pfSetPreview(data.url);
+    pfUpState('Foto terunggah ✓');
+    setTimeout(() => pfUpState(''), 2500);
+  } catch(e){
+    pfSetPreview('');
     $('pfImg').value = '';
-    pfSetPreview(pfImageData);
-  };
-  img.onerror = () => { URL.revokeObjectURL(url); showToast('Gambar tidak valid'); input.value = ''; };
-  img.src = url;
+    input.value = '';
+    pfUpState('');
+    showToast(e instanceof TypeError ? 'Upload gagal: koneksi/CORS' : e.message);
+  } finally {
+    pfUploading = false;
+    URL.revokeObjectURL(local);
+  }
 }
 
 function applyProductFormRole(){
@@ -1479,6 +1496,7 @@ function closeProductForm(){ $('productForm').style.display = 'none'; }
 
 async function saveProduct(){
   if(!canAccessPanel()){ showToast('Akses ditolak'); return; }
+  if(pfUploading){ showToast('Tunggu, foto masih diunggah…'); return; }
   const body = {
     name: $('pfName').value.trim(),
     stock_total: parseInt($('pfStock').value, 10) || 0,

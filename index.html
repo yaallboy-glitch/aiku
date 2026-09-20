@@ -780,7 +780,7 @@ footer{
     <button class="modal-close" onclick="closeModal('productModal')">✕</button>
     <div class="product-detail-grid">
       <div>
-        <img id="pdImg" src="" alt="" style="width:100%;border-radius:12px;aspect-ratio:3/4;object-fit:cover;background:var(--ph)">
+        <img id="pdImg" referrerpolicy="no-referrer" src="" alt="" style="width:100%;border-radius:12px;aspect-ratio:3/4;object-fit:cover;background:var(--ph)">
       </div>
       <div>
         <div id="pdTag" class="card-tag war" style="position:static;display:inline-flex;margin-bottom:14px">War</div>
@@ -887,7 +887,7 @@ footer{
             <div style="margin:8px 0;font-size:12px;color:var(--muted)">atau upload dari perangkat (maks 15 MB, kualitas asli)</div>
             <input id="pfFile" type="file" accept="image/*" onchange="pfHandleFile(this)">
             <div id="pfUpState" style="display:none;margin-top:8px;font-size:12px;color:var(--muted)"></div>
-            <img id="pfPreview" alt="" style="display:none;margin-top:10px;width:96px;height:96px;object-fit:cover;border-radius:10px;border:1px solid var(--line)">
+            <img id="pfPreview" alt="" referrerpolicy="no-referrer" onerror="pfPreviewFail(this)" style="display:none;margin-top:10px;width:96px;height:96px;object-fit:cover;border-radius:10px;border:1px solid var(--line)">
           </div>
           <div><span class="field-label">Ukuran (pisahkan koma)</span><input id="pfSizes" class="input-f" value="S, M, L, XL"></div>
         </div>
@@ -1196,7 +1196,7 @@ function renderProducts(products){
     return `
       <article class="card reveal" onclick="openProduct('${p.id}')">
         <div class="card-img">
-          <img src="${p.image_url || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=700'}" alt="${p.name}">
+          <img src="${p.image_url || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=700'}" alt="${p.name}" referrerpolicy="no-referrer" decoding="async">
           <span class="${tagClass}">${tag}</span>
           <span class="${stockClass}">${p.stock_left}/${p.stock_total}</span>
           <div class="${quickClass}">${quickText}</div>
@@ -1356,7 +1356,7 @@ async function openMyOrders(){
     }
     $('myOrdersList').innerHTML = orders.map(o => `
       <div class="order-row">
-        <img class="order-thumb" src="${o.product_image || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200'}" alt="">
+        <img class="order-thumb" referrerpolicy="no-referrer" src="${o.product_image || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200'}" alt="">
         <div>
           <div style="font-weight:600">${o.product_name}</div>
           <div class="order-meta">Ukuran ${o.size} · ${o.qty} pcs · ${formatRp(o.total)}</div>
@@ -1410,7 +1410,7 @@ async function loadAdminProducts(){
     }
     $('adminProductList').innerHTML = products.map(p => `
       <div class="order-row">
-        <img class="order-thumb" src="${p.image_url || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200'}" alt="">
+        <img class="order-thumb" referrerpolicy="no-referrer" src="${p.image_url || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200'}" alt="">
         <div>
           <div style="font-weight:600">${p.name}</div>
           <div class="order-meta">${formatRp(p.price)} · Stok ${p.stock_left}/${p.stock_total}</div>
@@ -1436,10 +1436,31 @@ function pfImgUrlInput(){
   pfSetPreview($('pfImg').value.trim());
 }
 let pfUploading = false;
+function pfPreviewFail(im){
+  const u = im.getAttribute('src') || '';
+  if(!u || u.startsWith('blob:')) return;
+  im.style.display = 'none';
+  pfUpState('Foto terunggah tapi gagal dimuat browser: ' + u);
+}
 function pfUpState(msg){
   const el = $('pfUpState');
   el.textContent = msg || '';
   el.style.display = msg ? 'block' : 'none';
+}
+// HEIC/format lain -> JPEG ukuran penuh, kualitas 95% (JPG/PNG/WebP dikirim apa adanya)
+async function pfToJpeg(f){
+  const url = URL.createObjectURL(f);
+  try {
+    const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => no(new Error('Format gambar tidak didukung browser ini')); i.src = url; });
+    let w = img.naturalWidth, h = img.naturalHeight;
+    const maxPx = 16000000;
+    if(w * h > maxPx){ const k = Math.sqrt(maxPx / (w * h)); w = Math.floor(w * k); h = Math.floor(h * k); }
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h);
+    const blob = await new Promise(ok => c.toBlob(ok, 'image/jpeg', 0.95));
+    if(!blob) throw new Error('Gagal memproses gambar');
+    return blob;
+  } finally { URL.revokeObjectURL(url); }
 }
 async function pfHandleFile(input){
   const f = input.files[0];
@@ -1452,8 +1473,15 @@ async function pfHandleFile(input){
   pfUploading = true;
   pfUpState('Mengunggah ' + (f.size / 1048576).toFixed(1) + ' MB…');
   try {
+    let up = f, upName = f.name || 'foto.jpg';
+    if(!['image/jpeg','image/png','image/webp'].includes(f.type)){
+      pfUpState('Memproses gambar…');
+      up = await pfToJpeg(f); upName = upName.replace(/\.[^.]+$/, '') + '.jpg';
+      if(up.size > 15 * 1024 * 1024) throw new Error('Hasil konversi melebihi 15 MB');
+      pfUpState('Mengunggah ' + (up.size / 1048576).toFixed(1) + ' MB…');
+    }
     const fd = new FormData();
-    fd.append('image', f, f.name || 'foto.jpg');
+    fd.append('image', up, upName);
     const r = await fetch(API + '/admin/upload', { method:'POST', credentials:'include', body: fd });
     let data = {};
     try { data = await r.json(); } catch(_){}

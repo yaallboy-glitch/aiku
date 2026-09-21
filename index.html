@@ -1079,7 +1079,9 @@ window.fetch = (input, init = {}) => {
     const url = typeof input === 'string' ? input : (input && input.url);
     const t = getToken();
     if(t && url && url.startsWith(API) && init.mode !== 'no-cors'){
-      init = { ...init, headers: { ...(init.headers || {}), Authorization: 'Bearer ' + t } };
+      const h = new Headers(init.headers || {});
+      h.set('Authorization', 'Bearer ' + t);
+      init = { ...init, headers: h };
     }
   } catch(e){}
   return _fetch(input, init);
@@ -1356,17 +1358,17 @@ function renderProducts(products){
     const cover = (Array.isArray(p.images) && p.images.length ? p.images[0] : p.image_url) || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=700';
     const owned = purchasedProductIds.has(p.id);
     return `
-      <article class="card reveal" onclick="openProduct('${p.id}')">
+      <article class="card reveal" onclick="openProduct('${esc(p.id)}')">
         <div class="card-img">
-          <img src="${cover}" alt="${p.name}" referrerpolicy="no-referrer" decoding="async">
+          <img src="${esc(cover)}" alt="${esc(p.name)}" referrerpolicy="no-referrer" decoding="async">
           <span class="${tagClass}">${tag}</span>
           <span class="${stockClass}">${p.stock_left}/${p.stock_total}</span>
           <div class="${quickClass}">${quickText}</div>
         </div>
         <div class="card-info">
           <div>
-            <h3>${p.name}</h3>
-            <div class="desc">${p.description || ''}</div>
+            <h3>${esc(p.name)}</h3>
+            <div class="desc">${esc(p.description || '')}</div>
             ${owned ? '<div class="card-owned">✓ Sudah pernah dipesan</div>' : ''}
           </div>
           <div class="card-price"><span class="cur">Rp</span>${formatK(p.price)}</div>
@@ -1374,7 +1376,7 @@ function renderProducts(products){
       </article>
     `;
   }).join('');
-  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  grid.querySelectorAll('.reveal').forEach(el => io.observe(el));
 }
 
 // ============================================================
@@ -1406,7 +1408,7 @@ function openProduct(id){
   $('pdStockLeft').textContent = 'Sisa ' + p.stock_left + ' pcs';
 
   const sizes = (p.sizes || 'S,M,L,XL').split(',').map(s => s.trim()).filter(Boolean);
-  $('pdSizes').innerHTML = sizes.map(s => `<button class="size-btn" onclick="selectSize('${s}', this)">${s}</button>`).join('');
+  $('pdSizes').innerHTML = sizes.map(s => `<button class="size-btn" onclick="selectSize('${esc(s)}', this)">${s}</button>`).join('');
 
   $('pdQtyPlus').disabled = currentQty >= p.stock_left;
   $('pdQtyMinus').disabled = currentQty <= 1;
@@ -1462,19 +1464,21 @@ function pdGoTo(i){ if(i === pdIdx) return; pdIdx = i; pdRenderGallery(); }
 (function(){
   const main = $('pdMain');
   if(!main) return;
-  let sx = 0, sy = 0, active = false;
+  let sx = 0, sy = 0, active = false, swiped = false;
   main.addEventListener('pointerdown', e => {
     if(e.target.closest('.pd-nav')) return;
-    sx = e.clientX; sy = e.clientY; active = true;
+    sx = e.clientX; sy = e.clientY; active = true; swiped = false;
   });
   main.addEventListener('pointerup', e => {
     if(!active) return;
     active = false;
     const dx = e.clientX - sx, dy = e.clientY - sy;
     if(Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+    swiped = true;
     if(dx < 0) pdNext(); else pdPrev();
   });
   main.addEventListener('click', e => {
+    if(swiped){ swiped = false; return; }
     if(e.target.closest('.pd-nav') || e.target.closest('.pd-dot')) return;
     pdOpenFullscreen();
   });
@@ -1874,6 +1878,7 @@ function pfBindDrag(){
 }
 
 async function uploadImageFile(file){
+  if(!file.type || !file.type.startsWith('image/')) throw new Error('Bukan file gambar');
   let up = file, upName = file.name || 'foto.jpg';
 
   if(!['image/jpeg','image/png','image/webp'].includes(file.type)){
@@ -2211,7 +2216,7 @@ function renderLookbookSection(items){
   const grid = $('lookbookGrid');
   if(!grid) return;
   grid.innerHTML = lookbookHTML(items, true);
-  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  grid.querySelectorAll('.reveal').forEach(el => io.observe(el));
 }
 
 async function loadLookbook(){
@@ -2928,12 +2933,16 @@ window.addEventListener('scroll', () => {
 // ============================================================
 //  INIT
 // ============================================================
+window.addEventListener('resize', () => {
+  if(window.innerWidth > 680) document.querySelector('.nav-links').style.display = '';
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   initGoogleLogin();
   apiReady = resolveApi();
-  apiReady.then(() => {
+  apiReady.then(async () => {
     checkSession();
-    loadProducts();
+    await loadProducts();
     loadLookbook();
     loadHero();
   });

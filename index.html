@@ -573,10 +573,9 @@ footer{
 .hre-chip span{min-width:0}
 .hre-chip b{display:block;font-size:13px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hre-chip small{font-size:11px;color:var(--muted)}
-<style>
 /* ============================================================
    DSMD PREMIUM ENHANCEMENT LAYER — v1
-   Tempel SEBELUM </style> (yang terakhir di <head>)
+   Layer tambahan (di dalam blok CSS utama)
    ============================================================ */
 
 /* ---------- REFINED PALETTE ---------- */
@@ -590,6 +589,7 @@ footer{
   --shadow-lg:0 24px 60px -20px rgba(10,10,10,.18),0 8px 24px -8px rgba(10,10,10,.1);
   --ease-expo:cubic-bezier(.16,1,.3,1);
   --ease-spring:cubic-bezier(.2,.9,.3,1.15);
+  --nav-bg:rgba(247,243,236,.88);
 }
 :root[data-theme="dark"]{
   --bg:#0e0d0b;--bg-2:#151310;--ink:#f4efe6;--muted:#9a9388;
@@ -599,24 +599,19 @@ footer{
   --shadow-sm:0 1px 2px rgba(0,0,0,.4),0 2px 8px rgba(0,0,0,.3);
   --shadow-md:0 4px 12px rgba(0,0,0,.4),0 12px 32px -8px rgba(0,0,0,.5);
   --shadow-lg:0 24px 60px -20px rgba(0,0,0,.6),0 8px 24px -8px rgba(0,0,0,.4);
+  --nav-bg:rgba(14,13,11,.88);
 }
 
 /* ---------- DARK MODE CLEANUP (fix hack invert) ---------- */
-:root[data-theme="dark"] .ticker{background:#000;color:#f4efe6;border-bottom-color:rgba(255,255,255,.06)}
+:root[data-theme="dark"] .ticker,
 :root[data-theme="dark"] .war-stats,
 :root[data-theme="dark"] .editorial,
-:root[data-theme="dark"] footer{
-  --ink:#f4efe6;--bg:#0e0d0b;
-  background:#050403;color:#f4efe6;
-}
-:root[data-theme="dark"] .war-stats{border:1px solid var(--line)}
+:root[data-theme="dark"] footer{--ink:#050403;--bg:#f4efe6}
 :root[data-theme="dark"] .editorial-media::after{background:linear-gradient(120deg,rgba(255,107,74,.2),transparent 55%)}
-:root[data-theme="dark"] .card-quick{background:var(--surface);color:var(--ink)}
-:root[data-theme="dark"] .card-quick:hover{background:var(--accent);color:#fff}
 
 /* ---------- SELECTION & FOCUS ---------- */
 ::selection{background:var(--accent);color:#fff}
-:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
 /* ---------- SCROLLBAR ---------- */
 ::-webkit-scrollbar{width:10px;height:10px}
@@ -669,10 +664,16 @@ footer{
              filter 1s var(--ease-expo);
   will-change:transform,opacity,filter;
 }
-.reveal.in{opacity:1;transform:translateY(0);filter:blur(0)}
+.reveal.in{opacity:1;transform:translateY(0);filter:none;will-change:auto}
 .reveal.from-left{transform:translateX(-40px)}
 .reveal.from-right{transform:translateX(40px)}
 .reveal.zoom{transform:scale(.94)}
+.reveal.in.from-left,.reveal.in.from-right,.reveal.in.zoom{transform:none}
+/* jaga transisi opacity/blur tetap ada di elemen yang punya transition sendiri */
+.card.reveal,.look.reveal,.countdown-wrap.reveal{
+  transition:opacity 1s var(--ease-expo),filter 1s var(--ease-expo),
+             transform .6s var(--ease-expo),box-shadow .5s var(--ease-expo);
+}
 
 /* ---------- MAGNETIC BUTTONS + SHINE ---------- */
 .btn-primary,.btn-ghost,.btn-light,.auth-btn,.cart-btn{
@@ -737,7 +738,7 @@ footer{
   0%,100%{box-shadow:0 0 0 0 rgba(212,84,58,0)}
   50%{box-shadow:0 0 0 4px rgba(212,84,58,.12)}
 }
-.cd-num{display:inline-block;transition:transform .3s var(--ease-spring)}
+.cd-num{transition:transform .3s var(--ease-spring)}
 .cd-num.flip{animation:cdFlip .5s var(--ease-expo)}
 @keyframes cdFlip{
   0%{transform:translateY(-60%);opacity:0}
@@ -760,7 +761,7 @@ footer{
   0%,100%{background-position:-100% 0}
   50%{background-position:200% 0}
 }
-.war-stats .stat b{transition:transform .4s var(--ease-spring)}
+.war-stats .stat b{transition:transform .4s var(--ease-spring);transform-origin:left center}
 .war-stats:hover .stat b{transform:scale(1.03)}
 
 /* ---------- NEWSLETTER ---------- */
@@ -786,7 +787,7 @@ footer{
 
 /* ---------- FOOTER LINKS ---------- */
 .footer-col a{
-  position:relative;display:inline-block;
+  position:relative;
   transition:color .25s,transform .25s var(--ease-expo);
 }
 .footer-col a:hover{transform:translateX(4px)}
@@ -831,7 +832,7 @@ footer{
 .order-row:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:var(--accent)}
 
 /* ---------- GRAIN & BLOB ANIMATION ---------- */
-.grain{animation:grainShift 8s steps(6) infinite;opacity:.28}
+.grain{inset:-5%;animation:grainShift 8s steps(6) infinite;opacity:.28}
 @keyframes grainShift{
   0%{transform:translate(0,0)}20%{transform:translate(-2%,-1%)}
   40%{transform:translate(1%,2%)}60%{transform:translate(-1%,-2%)}
@@ -849,7 +850,7 @@ footer{
 }
 
 /* ---------- SECTION H2 UNDERLINE ---------- */
-.section-head h2 em{position:relative;display:inline-block}
+.section-head h2 em{position:relative;display:inline-block;isolation:isolate}
 .section-head h2 em::after{
   content:'';position:absolute;left:0;right:0;bottom:.05em;height:.1em;
   background:var(--accent);transform:scaleX(0);transform-origin:left;
@@ -3296,8 +3297,8 @@ document.addEventListener('keydown', e => {
     document.addEventListener('mouseout', function(e){
       if(e.target.closest(HOV)){ ring.classList.remove('hover'); dot.classList.remove('hover'); }
     });
-    document.addEventListener('mouseleave', function(){ dot.style.opacity='0'; ring.style.opacity='0'; });
-    document.addEventListener('mouseenter', function(){ dot.style.opacity='1'; ring.style.opacity='1'; });
+    document.documentElement.addEventListener('mouseleave', function(){ dot.style.opacity='0'; ring.style.opacity='0'; });
+    document.documentElement.addEventListener('mouseenter', function(){ dot.style.opacity='1'; ring.style.opacity='1'; });
   }
 
   if(isFine && !reduced){
@@ -3378,7 +3379,7 @@ document.addEventListener('keydown', e => {
           var r = hv.getBoundingClientRect();
           if(r.bottom > 0 && r.top < innerHeight){
             var off = (innerHeight/2 - (r.top + r.height/2)) * 0.04;
-            hv.style.transform = 'translateY(' + off + 'px)';
+            hv.style.translate = '0 ' + off + 'px';
           }
           raf = false;
         });
@@ -3386,30 +3387,30 @@ document.addEventListener('keydown', e => {
     }
   }
 
-  function animateCount(el, target, dur){
+  function animateCount(node, target, pad, dur){
     dur = dur || 1400;
     var start = performance.now();
     function step(now){
       var t = Math.min(1, (now - start) / dur);
-      var eased = 1 - Math.pow(1 - t, 3);
-      var val = Math.round(target * eased);
-      el.textContent = val.toLocaleString('id-ID');
+      var val = Math.round(target * (1 - Math.pow(1 - t, 3)));
+      node.nodeValue = pad ? String(val).padStart(pad, '0') : val.toLocaleString('id-ID');
       if(t < 1) requestAnimationFrame(step);
     }
     requestAnimationFrame(step);
   }
   var countObs = new IntersectionObserver(function(es){
     es.forEach(function(e){
-      if(e.isIntersecting){
-        var el = e.target;
-        var raw = el.textContent.replace(/[^\d]/g, '');
-        var n = parseInt(raw, 10);
-        if(!isNaN(n) && n > 0 && !el.dataset.counted){
+      if(!e.isIntersecting) return;
+      var el = e.target, node = el.firstChild;
+      if(node && node.nodeType === 3 && !el.dataset.counted){
+        var txt = node.nodeValue.trim();
+        var n = parseInt(txt.replace(/[^\d]/g, ''), 10);
+        if(!isNaN(n) && n > 0){
           el.dataset.counted = '1';
-          animateCount(el, n);
+          animateCount(node, n, /^0\d/.test(txt) ? txt.length : 0);
         }
-        countObs.unobserve(el);
       }
+      countObs.unobserve(el);
     });
   }, { threshold: 0.5 });
   setTimeout(function(){
@@ -3437,7 +3438,7 @@ document.addEventListener('keydown', e => {
     a.addEventListener('click', function(e){
       var id = a.getAttribute('href');
       if(id.length < 2) return;
-      var t = document.querySelector(id);
+      var t; try{ t = document.querySelector(id); }catch(_){ return; }
       if(!t) return;
       e.preventDefault();
       var top = t.getBoundingClientRect().top + scrollY - 90;

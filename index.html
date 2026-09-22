@@ -699,121 +699,394 @@ footer{
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--accent);border-radius:100px;border:2px solid var(--bg)}
 
-/* =========================
-   DSMD OPENING ANIMATION
-========================= */
+/* =====================================
+   DSMD SPLASH SCREEN
+===================================== */
 
-#dsmd-intro {
+#dsmd-splash {
     position: fixed;
     inset: 0;
     width: 100%;
-    height: 100vh;
-    background: #050505;
+    height: 100dvh;
+
+    background: #17171c;
+
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 999999;
+
     overflow: hidden;
 
-    animation: dsmdIntroOut 1s ease 3.5s forwards;
+    z-index: 999999;
+
+    animation: splashExit 0.7s ease-in-out 2.7s forwards;
 }
 
-.dsmd-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
 
-.dsmd-text {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: clamp(55px, 12vw, 150px);
+/* =====================================
+   LOGO BESAR BACKGROUND
+===================================== */
+
+.dsmd-bg-logo {
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    transform:
+        translate(-50%, -50%)
+        rotate(90deg)
+        scale(2.8);
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    font-size: 150px;
+
     font-weight: 900;
-    letter-spacing: 18px;
-    color: #ffffff;
+
+    letter-spacing: -15px;
+
+    color: rgba(255,255,255,0.035);
+
+    white-space: nowrap;
+
+    user-select: none;
+
+    animation:
+        bgLogoAppear 1.2s ease-out forwards,
+        bgLogoMove 2.8s ease-in-out infinite;
+}
+
+
+/* =====================================
+   CENTER
+===================================== */
+
+.dsmd-center {
+
+    position: relative;
+
+    z-index: 5;
+
+    animation:
+        centerAppear 0.8s
+        cubic-bezier(.16,1,.3,1)
+        0.25s
+        both;
+}
+
+
+/* =====================================
+   KOTAK LOGO
+===================================== */
+
+.dsmd-logo-box {
+
+    width: 128px;
+    height: 128px;
+
+    border-radius: 28px;
+
+    background: #111114;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+
+    box-shadow:
+        0 15px 40px rgba(0,0,0,0.45),
+        inset 0 0 0 1px rgba(255,255,255,0.035);
+
+    overflow: hidden;
+
+    animation:
+        logoBoxPulse 1.8s
+        ease-in-out
+        infinite;
+}
+
+
+/* =====================================
+   TEXT SEMENTARA
+===================================== */
+
+.dsmd-logo-box span {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    font-size: 28px;
+
+    font-weight: 900;
+
+    letter-spacing: 3px;
+
+    color: white;
+
+    animation:
+        logoAppear 0.7s
+        ease-out
+        0.5s
+        both;
+}
+
+
+/* =====================================
+   UNTUK LOGO ASLI NANTI
+===================================== */
+
+.dsmd-logo-box img {
+
+    width: 72%;
+    height: 72%;
+
+    object-fit: contain;
+
+    display: block;
+}
+
+
+/* =====================================
+   GLOW HALUS
+===================================== */
+
+.dsmd-logo-box::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: -40%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,255,255,0.08),
+            transparent 60%
+        );
 
     opacity: 0;
-    transform: scale(0.65);
-    animation:
-        dsmdTextIn 1.2s cubic-bezier(.16,1,.3,1) 0.3s forwards,
-        dsmdGlow 1.5s ease 1.5s forwards;
-}
-
-.dsmd-line {
-    width: 0;
-    height: 2px;
-    margin-top: 18px;
-    background: #ffffff;
 
     animation:
-        dsmdLineIn 0.8s ease 1.4s forwards;
+        logoGlow 1.5s
+        ease-out
+        0.4s
+        forwards;
 }
 
-/* Text masuk */
-@keyframes dsmdTextIn {
+
+/* =====================================
+   ANIMASI
+===================================== */
+
+@keyframes centerAppear {
+
     0% {
+
         opacity: 0;
-        transform: scale(0.65);
-        letter-spacing: 35px;
-    }
 
-    60% {
-        opacity: 1;
-    }
+        transform:
+            scale(0.65)
+            translateY(15px);
 
-    100% {
-        opacity: 1;
-        transform: scale(1);
-        letter-spacing: 18px;
-    }
-}
-
-/* Efek cahaya */
-@keyframes dsmdGlow {
-    0% {
-        text-shadow: 0 0 0 rgba(255,255,255,0);
-    }
-
-    50% {
-        text-shadow:
-            0 0 10px rgba(255,255,255,.8),
-            0 0 30px rgba(255,255,255,.4);
-    }
-
-    100% {
-        text-shadow:
-            0 0 5px rgba(255,255,255,.3);
-    }
-}
-
-/* Garis bawah */
-@keyframes dsmdLineIn {
-    from {
-        width: 0;
-        opacity: 0;
-    }
-
-    to {
-        width: 180px;
-        opacity: 1;
-    }
-}
-
-/* Opening menghilang */
-@keyframes dsmdIntroOut {
-    0% {
-        opacity: 1;
-        visibility: visible;
     }
 
     70% {
+
         opacity: 1;
+
+        transform:
+            scale(1.04)
+            translateY(0);
+
     }
 
     100% {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
+
+        opacity: 1;
+
+        transform:
+            scale(1)
+            translateY(0);
+
     }
+}
+
+
+@keyframes logoAppear {
+
+    0% {
+
+        opacity: 0;
+
+        transform: scale(0.7);
+
+    }
+
+    100% {
+
+        opacity: 1;
+
+        transform: scale(1);
+
+    }
+}
+
+
+@keyframes logoBoxPulse {
+
+    0%,
+    100% {
+
+        transform: scale(1);
+
+    }
+
+    50% {
+
+        transform: scale(1.025);
+
+    }
+}
+
+
+@keyframes logoGlow {
+
+    0% {
+
+        opacity: 0;
+
+        transform: scale(0.5);
+
+    }
+
+    50% {
+
+        opacity: 1;
+
+    }
+
+    100% {
+
+        opacity: 0;
+
+        transform: scale(1.2);
+
+    }
+}
+
+
+@keyframes bgLogoAppear {
+
+    0% {
+
+        opacity: 0;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(90deg)
+            scale(2.2);
+
+    }
+
+    100% {
+
+        opacity: 1;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(90deg)
+            scale(2.8);
+
+    }
+}
+
+
+@keyframes bgLogoMove {
+
+    0% {
+
+        margin-top: 0;
+
+    }
+
+    50% {
+
+        margin-top: -18px;
+
+    }
+
+    100% {
+
+        margin-top: 0;
+
+    }
+}
+
+
+/* =====================================
+   SPLASH KELUAR
+===================================== */
+
+@keyframes splashExit {
+
+    0% {
+
+        opacity: 1;
+
+        transform: scale(1);
+
+    }
+
+    100% {
+
+        opacity: 0;
+
+        transform: scale(1.03);
+
+        visibility: hidden;
+
+        pointer-events: none;
+
+    }
+}
+
+
+/* =====================================
+   MOBILE
+===================================== */
+
+@media (max-width: 600px) {
+
+    .dsmd-bg-logo {
+
+        font-size: 120px;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(90deg)
+            scale(2.7);
+
+    }
+
+    .dsmd-logo-box {
+
+        width: 110px;
+        height: 110px;
+
+        border-radius: 25px;
+
+    }
+
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -825,25 +1098,42 @@ footer{
 </head>
 <body>
 
-<!-- DSMD INTRO -->
-<div id="dsmd-intro">
-    <div class="dsmd-content">
-        <div class="dsmd-text">DSMD</div>
-        <div class="dsmd-line"></div>
+<!-- DSMD SPLASH SCREEN -->
+<div id="dsmd-splash">
+
+    <!-- Logo DSMD besar di background -->
+    <div class="dsmd-bg-logo">DSMD</div>
+
+    <!-- Logo utama -->
+    <div class="dsmd-center">
+        <div class="dsmd-logo-box">
+            <!-- Sementara pakai teks -->
+            <span>DSMD</span>
+
+            <!-- Nanti bisa diganti:
+            <img src="logo-dsmd.png" alt="DSMD">
+            -->
+        </div>
     </div>
+
 </div>
 <script>
-window.addEventListener("load", function () {
 
-    const intro = document.getElementById("dsmd-intro");
+document.addEventListener("DOMContentLoaded", () => {
 
-    // Setelah animasi selesai,
-    // intro tidak mengganggu website lagi.
+    const splash =
+        document.getElementById("dsmd-splash");
+
     setTimeout(() => {
-        intro.remove();
-    }, 5000);
+
+        if (splash) {
+            splash.remove();
+        }
+
+    }, 3500);
 
 });
+
 </script>
 
 <div class="grain"></div>

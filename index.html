@@ -730,7 +730,117 @@ footer{
 
     z-index: 999999;
 
-    animation: splashExit 0.7s ease-in-out 2.7s forwards;
+    animation: splashExit 0.9s ease-in-out 3.5s forwards;
+}
+
+
+/* =====================================
+   GRID ABSTRAK BACKGROUND
+===================================== */
+
+.dsmd-grid-overlay {
+
+    position: absolute;
+    inset: 0;
+
+    background-image:
+        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+
+    background-size: 46px 46px;
+
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 0%, transparent 72%);
+    mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 0%, transparent 72%);
+
+    opacity: 0;
+
+    animation:
+        gridFade 1.6s ease-out 0.15s forwards,
+        gridPan 9s linear infinite;
+}
+
+
+/* =====================================
+   TEKS ABSTRAK MELAYANG
+===================================== */
+
+.dsmd-float-text {
+
+    position: absolute;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+
+    color: rgba(255,255,255,0.06);
+
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+
+    opacity: 0;
+}
+
+.ft-1 { top: 18%; left: 10%;  font-size: 13px; animation: floatDrift 5.4s ease-in-out 0.5s infinite; }
+.ft-2 { top: 74%; left: 76%;  font-size: 16px; animation: floatDrift 6.2s ease-in-out 1.0s infinite; }
+.ft-3 { top: 22%; left: 78%;  font-size: 11px; animation: floatDrift 5.0s ease-in-out 1.5s infinite; }
+.ft-4 { top: 70%; left: 9%;   font-size: 12px; animation: floatDrift 6.6s ease-in-out 0.8s infinite; }
+.ft-5 { top: 46%; left: 5%;   font-size: 10px; animation: floatDrift 5.8s ease-in-out 1.9s infinite; }
+.ft-6 { top: 12%; left: 46%;  font-size: 10px; animation: floatDrift 6.0s ease-in-out 2.2s infinite; }
+
+
+/* =====================================
+   LOADING INDICATOR
+===================================== */
+
+.dsmd-loading {
+
+    position: absolute;
+    bottom: 48px;
+    left: 50%;
+
+    transform: translate(-50%, 8px);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+
+    opacity: 0;
+
+    animation: loadingAppear 0.6s ease-out 1.1s forwards;
+}
+
+.dsmd-loading-text {
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+
+    color: rgba(255,255,255,0.35);
+}
+
+.dsmd-loading-bar {
+
+    width: 140px;
+    height: 2px;
+
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+
+    overflow: hidden;
+}
+
+.dsmd-loading-fill {
+
+    height: 100%;
+    width: 0%;
+
+    background: linear-gradient(90deg, rgba(255,255,255,0.15), rgba(255,255,255,0.95));
+
+    animation: loadingFill 2.4s cubic-bezier(.65,0,.35,1) 1.1s forwards;
 }
 
 
@@ -768,8 +878,8 @@ footer{
     user-select: none;
 
     animation:
-        bgLogoAppear 1.2s ease-out forwards,
-        bgLogoMove 2.8s ease-in-out infinite;
+        bgLogoAppear 1.5s ease-out forwards,
+        bgLogoMove 3.4s ease-in-out infinite;
 }
 
 
@@ -784,9 +894,9 @@ footer{
     z-index: 5;
 
     animation:
-        centerAppear 0.8s
+        centerAppear 1s
         cubic-bezier(.16,1,.3,1)
-        0.25s
+        0.3s
         both;
 }
 
@@ -818,7 +928,7 @@ footer{
     overflow: hidden;
 
     animation:
-        logoBoxPulse 1.8s
+        logoBoxPulse 2.2s
         ease-in-out
         infinite;
 }
@@ -844,9 +954,9 @@ footer{
     color: white;
 
     animation:
-        logoAppear 0.7s
+        logoAppear 0.8s
         ease-out
-        0.5s
+        0.6s
         both;
 }
 
@@ -888,10 +998,11 @@ footer{
     opacity: 0;
 
     animation:
-        logoGlow 1.5s
-        ease-out
-        0.4s
-        forwards;
+        logoGlow 2.4s
+        ease-in-out
+        0.5s
+        infinite
+        alternate;
 }
 
 
@@ -976,23 +1087,76 @@ footer{
 
         opacity: 0;
 
-        transform: scale(0.5);
-
-    }
-
-    50% {
-
-        opacity: 1;
+        transform: scale(0.6);
 
     }
 
     100% {
 
-        opacity: 0;
+        opacity: 0.9;
 
-        transform: scale(1.2);
+        transform: scale(1.15);
 
     }
+}
+
+
+@keyframes gridFade {
+
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+
+@keyframes gridPan {
+
+    0% { background-position: 0 0; }
+    100% { background-position: 46px 46px; }
+}
+
+
+@keyframes floatDrift {
+
+    0% {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    30% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    70% {
+        opacity: 1;
+        transform: translateY(-8px);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-16px);
+    }
+}
+
+
+@keyframes loadingAppear {
+
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 8px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+
+@keyframes loadingFill {
+
+    0% { width: 0%; }
+    100% { width: 100%; }
 }
 
 
@@ -1098,6 +1262,14 @@ footer{
 
     }
 
+    .ft-3, .ft-5, .ft-6 {
+        display: none;
+    }
+
+    .dsmd-loading-bar {
+        width: 110px;
+    }
+
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -1116,6 +1288,17 @@ footer{
 <!-- DSMD SPLASH SCREEN -->
 <div id="dsmd-splash">
 
+    <!-- Grid abstrak -->
+    <div class="dsmd-grid-overlay"></div>
+
+    <!-- Teks abstrak melayang -->
+    <div class="dsmd-float-text ft-1">WAR</div>
+    <div class="dsmd-float-text ft-2">DROP</div>
+    <div class="dsmd-float-text ft-3">LIMITED</div>
+    <div class="dsmd-float-text ft-4">JOGJA</div>
+    <div class="dsmd-float-text ft-5">ATELIER</div>
+    <div class="dsmd-float-text ft-6">2026</div>
+
     <!-- Logo DSMD besar di background -->
     <div class="dsmd-bg-logo">DSMD</div>
 
@@ -1128,6 +1311,14 @@ footer{
             <!-- Nanti bisa diganti:
             <img src="logo-dsmd.png" alt="DSMD">
             -->
+        </div>
+    </div>
+
+    <!-- Indikator loading -->
+    <div class="dsmd-loading">
+        <span class="dsmd-loading-text">Menyiapkan Drop</span>
+        <div class="dsmd-loading-bar">
+            <div class="dsmd-loading-fill"></div>
         </div>
     </div>
 
@@ -1145,7 +1336,7 @@ document.addEventListener("DOMContentLoaded", () => {
             splash.remove();
         }
 
-    }, 3500);
+    }, 4500);
 
 });
 

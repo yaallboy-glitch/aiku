@@ -1848,7 +1848,7 @@ function orderRowHtml(o){
       <img class="order-thumb" referrerpolicy="no-referrer" src="${o.product_image || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200'}" alt="">
       <div>
         <div style="font-weight:600">${o.product_name}</div>
-        <div class="order-meta">Ukuran ${o.size} · ${o.qty} pcs · ${formatRp(o.total)}</div>
+        <div class="order-meta">Ukuran ${o.size} · ${o.qty} pcs × ${formatRp(o.unit_price)} · Total ${formatRp(o.total)}</div>
         <div class="order-meta">${new Date(o.created_at).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })}</div>
       </div>
       <span class="badge-status badge-${o.status}">${statusLabel(o.status)}</span>
@@ -2295,7 +2295,7 @@ async function loadAdminOrders(){
         </div>
         <div>
           <div style="font-weight:600">${o.product_name}</div>
-          <div class="order-meta">${o.size} · ${o.qty} pcs · ${formatRp(o.total)}</div>
+          <div class="order-meta">${o.size} · ${o.qty} pcs × ${formatRp(o.unit_price)} · Total ${formatRp(o.total)}</div>
           <div class="order-meta">📍 ${o.address.street}, ${o.address.city}</div>
         </div>
         <span class="badge-status badge-${o.status}">${statusLabel(o.status)}</span>
@@ -2946,6 +2946,7 @@ function exportExcel(orders){
     'Produk': o.product_name,
     'Ukuran': o.size,
     'Qty': o.qty,
+    'Harga Satuan': o.unit_price,
     'Total': o.total,
     'Status': o.status,
     'Alamat': o.address.street,
@@ -2972,6 +2973,7 @@ function exportPDF(orders){
     o.buyer_name,
     o.product_name + ' (' + o.size + ')',
     o.qty,
+    formatRp(o.unit_price),
     formatRp(o.total),
     o.address.street + ', ' + o.address.city,
     o.address.phone,
@@ -2979,7 +2981,7 @@ function exportPDF(orders){
   ]);
   doc.autoTable({
     startY: 28,
-    head: [['ID','Pembeli','Produk','Qty','Total','Alamat','No. WA','Status']],
+    head: [['ID','Pembeli','Produk','Qty','Harga Satuan','Total','Alamat','No. WA','Status']],
     body: rows,
     styles: { fontSize: 8, cellPadding: 2 },
     headStyles: { fillColor: [14,14,14], textColor: [246,244,239] }

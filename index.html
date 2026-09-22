@@ -751,9 +751,11 @@ body.dsmd-lock{overflow:hidden;height:100vh}
   var el = document.getElementById('dsmdIntro');
   if(!el) return;
 
-  // Only play the full intro once per browser session
+  // NOTE: "once per session" gate is OFF right now for testing.
+  // To re-enable it later, uncomment the sessionStorage lines below
+  // and change the `if(reduce)` line back to `if(seen || reduce)`.
   var seen = false;
-  try{ seen = sessionStorage.getItem('dsmdIntroSeen') === '1'; }catch(e){}
+  // try{ seen = sessionStorage.getItem('dsmdIntroSeen') === '1'; }catch(e){}
 
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -763,11 +765,11 @@ body.dsmd-lock{overflow:hidden;height:100vh}
     setTimeout(function(){ el.remove(); }, 650);
   }
 
-  if(seen || reduce){
+  if(reduce){
     el.remove();
   } else {
     document.body.classList.add('dsmd-lock');
-    try{ sessionStorage.setItem('dsmdIntroSeen','1'); }catch(e){}
+    // try{ sessionStorage.setItem('dsmdIntroSeen','1'); }catch(e){}
     var t = setTimeout(finish, 2200);
     el.addEventListener('click', function(){ clearTimeout(t); finish(); });
   }

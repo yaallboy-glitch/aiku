@@ -1287,7 +1287,6 @@ footer{
 /* DSMD PROMAX LITE — responsive + micro-interactions */
 :root{
   --ease-pro:cubic-bezier(.22,1,.36,1);
-  --ease-spring:cubic-bezier(.2,.85,.25,1.25);
   --shadow-pro:0 24px 70px -38px rgba(14,14,14,.32);
 }
 html{scroll-padding-top:90px}
@@ -1805,7 +1804,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <h3 class="modal-title">Daftar / Masuk</h3>
     <p class="modal-sub">Masuk pakai akun Google kamu — cepat, aman, tanpa password.</p>
     <div id="googleBtnContainer" style="display:flex;justify-content:center;margin-top:20px"></div>
-    <pre id="loginDiag" style="margin-top:16px;padding:10px 12px;border-radius:10px;background:var(--surface-2);color:var(--muted);font:10.5px/1.6 var(--mono);text-align:left;white-space:pre-wrap;word-break:break-all"></pre>
+    <pre id="loginDiag" style="display:none;margin-top:16px;padding:10px 12px;border-radius:10px;background:var(--surface-2);color:var(--muted);font:10.5px/1.6 var(--mono);text-align:left;white-space:pre-wrap;word-break:break-all"></pre>
     <p style="font-size:11px;color:var(--muted);margin-top:20px;line-height:1.6">
       Dengan masuk, kamu setuju dengan syarat & ketentuan DSMD.
     </p>
@@ -2051,10 +2050,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // ============================================================
 //  CONFIG
 // ============================================================
-const API_CANDIDATES = [
-  'https://dsmd-worker.agung-cemplon.workers.dev/dsmd'
-];
-let API = API_CANDIDATES[0];
+const API = 'https://dsmd-worker.agung-cemplon.workers.dev/dsmd';
 const TOKEN_KEY = 'dsmd-token';
 const getToken = () => { try { return localStorage.getItem(TOKEN_KEY); } catch(e){ return null; } };
 const setToken = t => { try { t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY); } catch(e){} };
@@ -2071,20 +2067,10 @@ window.fetch = (input, init = {}) => {
   } catch(e){}
   return _fetch(input, init);
 };
-let apiReady = Promise.resolve();
-async function resolveApi(){
-  const probe = async (u, cors) => {
-    const c = new AbortController(); const t = setTimeout(() => c.abort(), 4500);
-    try {
-      await fetch(u + '/auth/me', cors ? { credentials:'include', signal:c.signal } : { mode:'no-cors', signal:c.signal });
-      return true;
-    } catch(e){ return false; } finally { clearTimeout(t); }
-  };
-  for(const u of API_CANDIDATES){ if(await probe(u, true)){ API = u; return; } }
-  for(const u of API_CANDIDATES){ if(await probe(u, false)){ API = u; return; } }
-}
 const GOOGLE_CLIENT_ID = '554107557548-o2q25dcsqj07r3hupdkvtes2tujfri9l.apps.googleusercontent.com';
 const SHIPPING_FLAT = 20000;
+// Panel diagnostik login hanya muncul di localhost atau dengan ?debug=1
+const DEBUG = /[?&]debug=1/.test(location.search) || /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 
 // ============================================================
 //  STATE
@@ -2111,6 +2097,14 @@ function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','
 //  UTILITIES
 // ============================================================
 function $(id){ return document.getElementById(id); }
+// Argumen string aman untuk atribut onclick="fn(...)": JSON literal + HTML-escape
+const jsArg = v => esc(JSON.stringify(String(v ?? '')));
+// Timestamp "YYYY-MM-DD HH:MM:SS" tanpa zona dianggap UTC
+function parseTs(v){
+  if(typeof v === 'string' && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?$/.test(v)) return new Date(v.replace(' ', 'T') + 'Z');
+  return new Date(v);
+}
+function firstName(u){ return String((u && (u.name || u.email)) || '').trim().split(/[\s@]/)[0]; }
 function showToast(msg){
   const t = $('toast');
   t.textContent = msg;
@@ -2119,10 +2113,15 @@ function showToast(msg){
   t._timer = setTimeout(() => t.classList.remove('show'), 3200);
 }
 function formatRp(n){ return 'Rp ' + Number(n||0).toLocaleString('id-ID'); }
-function formatK(n){ return n >= 1000 ? Math.floor(n/1000) + 'K' : String(n); }
+function formatK(n){
+  n = Number(n) || 0;
+  if(n < 1000) return String(n);
+  const k = Math.floor(n / 100) / 10;   // 349900 -> 349,9K (tidak dibulatkan ke atas/bawah secara menyesatkan)
+  return String(k).replace('.', ',') + 'K';
+}
 function openModal(id){
   $(id).classList.add('show');
-  if(id === 'loginModal'){ renderGoogleButton(); runLoginDiag(); }
+  if(id === 'loginModal'){ renderGoogleButton(); if(DEBUG) runLoginDiag(); }
 }
 function toggleTheme(){
   const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -2155,9 +2154,8 @@ document.addEventListener('click', e => {
 });
 
 let gsiReady = false, gsiTries = 0, lastLoginErr = '';
-function diagShow(lines){ const d = $('loginDiag'); if(d) d.textContent = lines.join('\n'); }
+function diagShow(lines){ const d = $('loginDiag'); if(d){ d.style.display = 'block'; d.textContent = lines.join('\n'); } }
 async function runLoginDiag(){
-  await apiReady;
   const L = [];
   L.push('Origin : ' + location.origin + (location.protocol === 'file:' ? '  ✗ (jangan buka dari file://)' : ''));
   L.push('API    : ' + API);
@@ -2216,7 +2214,7 @@ async function handleGoogleCredential(response){
     currentUser = data.user;
     applyUserUI();
     closeModal('loginModal');
-    showToast('Selamat datang, ' + currentUser.name.split(' ')[0] + '!');
+    showToast('Selamat datang, ' + firstName(currentUser) + '!');
     try {
       const chk = await fetch(API + '/auth/me', { credentials: 'include' });
       if(!chk.ok) showToast('Login berhasil, tapi sesi tidak tersimpan (cookie diblokir)');
@@ -2225,7 +2223,7 @@ async function handleGoogleCredential(response){
     const msg = (e instanceof TypeError) ? 'server tidak terjangkau / CORS' : e.message;
     lastLoginErr = msg;
     showToast('Login gagal: ' + msg);
-    if($('loginModal').classList.contains('show')) runLoginDiag();
+    if(DEBUG && $('loginModal').classList.contains('show')) runLoginDiag();
   }
 }
 
@@ -2242,8 +2240,8 @@ async function checkSession(){
 
 function applyUserUI(){
   if(currentUser){
-    $('authBtnText').textContent = currentUser.name.split(' ')[0];
-    $('userName').textContent = currentUser.name;
+    $('authBtnText').textContent = firstName(currentUser);
+    $('userName').textContent = currentUser.name || currentUser.email;
     $('userEmail').textContent = currentUser.email;
     currentUser.role = getRole();
     $('adminMenuItem').style.display = canAccessPanel() ? 'flex' : 'none';
@@ -2284,15 +2282,11 @@ async function loadProducts(){
     productsCache = data.products || [];
     renderProducts(productsCache);
   } catch(e){
-    productsCache = [
-      { id:'demo-1', name:'Abstract Tee 01', description:'Bone · Hand-printed · Jogja', price:340000, stock_left:32, stock_total:100, sizes:'S,M,L,XL', image_url:'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=700&q=80' },
-      { id:'demo-2', name:'Blob Shirt', description:'Ivory · Boxy · Unisex', price:460000, stock_left:78, stock_total:100, sizes:'S,M,L,XL', image_url:'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=700&q=80' },
-      { id:'demo-3', name:'Warp Trouser', description:'Charcoal · Wide Leg', price:520000, stock_left:8, stock_total:100, sizes:'28,30,32,34', image_url:'https://images.unsplash.com/photo-1542272604-787c3835535d?w=700&q=80' },
-      { id:'demo-4', name:'Static Coat', description:'Camel · Drop N°06', price:1480000, stock_left:0, stock_total:100, sizes:'S,M,L,XL', image_url:'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=700&q=80' },
-      { id:'demo-5', name:'Noise Shirt', description:'Sand · Linen · Oversized', price:390000, stock_left:45, stock_total:100, sizes:'S,M,L,XL', image_url:'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=700&q=80' },
-      { id:'demo-6', name:'Matter Knit', description:'Cream · Drop N°05', price:690000, stock_left:0, stock_total:100, sizes:'S,M,L,XL', image_url:'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=700&q=80' }
-    ];
-    renderProducts(productsCache);
+    if(productsCache.length){
+      showToast('Gagal memperbarui produk');
+    } else {
+      $('collection').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted)">Produk gagal dimuat. <button class="btn-sm ghost" style="margin-left:8px" onclick="loadProducts()">Coba lagi</button></div>';
+    }
   }
   updateHeroAndStats();
 }
@@ -2312,7 +2306,6 @@ async function loadPurchasedProducts(){
 }
 
 function updateHeroAndStats(){
-  const totalStock = productsCache.reduce((a,p) => a + p.stock_left, 0);
   const totalSold = productsCache.reduce((a,p) => a + (p.stock_total - p.stock_left), 0);
   const totalWarriors = 4000 + totalSold;
 
@@ -2343,7 +2336,7 @@ function renderProducts(products){
     const cover = (Array.isArray(p.images) && p.images.length ? p.images[0] : p.image_url) || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=700';
     const owned = purchasedProductIds.has(p.id);
     return `
-      <article class="card reveal" onclick="openProduct('${esc(p.id)}')">
+      <article class="card reveal" onclick="openProduct(${jsArg(p.id)})">
         <div class="card-img">
           <img src="${esc(cover)}" alt="${esc(p.name)}" referrerpolicy="no-referrer" decoding="async">
           <span class="${tagClass}">${tag}</span>
@@ -2382,7 +2375,7 @@ function openProduct(id){
     ? p.images.slice()
     : [p.image_url || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=900'];
   pdIdx = 0;
-  pdRenderGallery();
+  pdRenderGallery(true);
 
   $('pdTag').textContent = p.stock_left < 20 ? 'Hot' : 'War';
   $('pdName').textContent = p.name;
@@ -2392,7 +2385,7 @@ function openProduct(id){
   $('pdStockLeft').textContent = 'Sisa ' + p.stock_left + ' pcs';
 
   const sizes = (p.sizes || 'S,M,L,XL').split(',').map(s => s.trim()).filter(Boolean);
-  $('pdSizes').innerHTML = sizes.map(s => `<button class="size-btn" onclick="selectSize('${esc(s)}', this)">${s}</button>`).join('');
+  $('pdSizes').innerHTML = sizes.map(s => `<button class="size-btn" onclick="selectSize(${jsArg(s)}, this)">${esc(s)}</button>`).join('');
 
   $('pdQtyPlus').disabled = currentQty >= p.stock_left;
   $('pdQtyMinus').disabled = currentQty <= 1;
@@ -2400,15 +2393,20 @@ function openProduct(id){
   openModal('productModal');
 }
 
-function pdRenderGallery(){
+function pdRenderGallery(instant){
   const main = $('pdImgMain');
   if(!main || !pdImages.length) return;
 
-  main.classList.add('pd-fade');
-  setTimeout(() => {
+  if(instant){
     main.src = pdImages[pdIdx];
     main.classList.remove('pd-fade');
-  }, 220);
+  } else {
+    main.classList.add('pd-fade');
+    setTimeout(() => {
+      main.src = pdImages[pdIdx];
+      main.classList.remove('pd-fade');
+    }, 220);
+  }
 
   const dots = $('pdDots');
   if(pdImages.length > 1){
@@ -2430,7 +2428,7 @@ function pdRenderGallery(){
     thumbs.style.display = '';
     thumbs.innerHTML = pdImages.map((url, i) =>
       `<button class="pd-thumb ${i === pdIdx ? 'active' : ''}" onclick="pdGoTo(${i})">
-        <img src="${url}" referrerpolicy="no-referrer" alt="">
+        <img src="${esc(url)}" referrerpolicy="no-referrer" alt="">
       </button>`
     ).join('');
     const active = thumbs.querySelector('.pd-thumb.active');
@@ -2473,7 +2471,6 @@ document.addEventListener('keydown', e => {
   const fs = document.querySelector('.pd-fullscreen');
   if(e.key === 'ArrowLeft') fs ? pdFsPrev() : pdPrev();
   if(e.key === 'ArrowRight') fs ? pdFsNext() : pdNext();
-  if(e.key === 'Escape' && fs) pdCloseFullscreen();
 });
 
 // Fullscreen zoom
@@ -2491,7 +2488,7 @@ function pdOpenFullscreen(){
     ${pdImages.length > 1 ? '<button class="pd-fs-nav pd-fs-prev" onclick="pdFsPrev()" aria-label="Sebelumnya">‹</button>' : ''}
     ${pdImages.length > 1 ? '<button class="pd-fs-nav pd-fs-next" onclick="pdFsNext()" aria-label="Berikutnya">›</button>' : ''}
     ${pdImages.length > 1 ? `<div class="pd-fs-count"><span id="pdFsCount">${pdFsIdx+1}</span> / ${pdImages.length}</div>` : ''}
-    <img id="pdFsImg" src="${pdImages[pdFsIdx]}" referrerpolicy="no-referrer" draggable="false">
+    <img id="pdFsImg" src="${esc(pdImages[pdFsIdx])}" referrerpolicy="no-referrer" draggable="false">
   `;
   document.body.appendChild(fs);
   document.body.style.overflow = 'hidden';
@@ -2582,10 +2579,19 @@ function pdFsBindGestures(fs){
         if(now - lastTap < 280 && Math.abs(dx) < 15 && Math.abs(dy) < 15){
           pdFsZoom = 2;
           pdFsApplyTransform();
+          lastTap = 0;
+        } else {
+          lastTap = now;
         }
-        lastTap = now;
       }
     } else {
+      const now = Date.now();
+      if(now - lastTap < 280 && Math.abs(dx) < 15 && Math.abs(dy) < 15){
+        pdFsZoom = 1; pdFsPanX = 0; pdFsPanY = 0;   // double-tap saat zoom = reset
+        lastTap = 0;
+      } else {
+        lastTap = now;
+      }
       pdFsApplyTransform();
     }
   });
@@ -2648,6 +2654,29 @@ function openAddressModal(){
   openModal('addressModal');
 }
 
+let lastSnap = null;   // { sig, token } supaya klik ulang tidak membuat order pending baru
+
+function payWithSnap(token, sig, btn){
+  const done = () => { btn.disabled = false; btn.textContent = 'Bayar Sekarang →'; };
+  window.snap.pay(token, {
+    onSuccess: () => {
+      lastSnap = null; done();
+      showToast('Pembayaran berhasil!');
+      closeModal('addressModal');
+      loadProducts();
+      setTimeout(() => openMyOrders(), 700);
+    },
+    onPending: () => {
+      done();
+      showToast('Menunggu pembayaran kamu');
+      closeModal('addressModal');
+      loadProducts();
+    },
+    onError: () => { lastSnap = null; done(); showToast('Pembayaran gagal'); },
+    onClose: () => { done(); showToast('Pembayaran dibatalkan'); }
+  });
+}
+
 async function submitOrder(){
   const name = $('addrName').value.trim();
   const phone = $('addrPhone').value.trim();
@@ -2664,10 +2693,18 @@ async function submitOrder(){
   }
 
   const btn = $('payNowBtn');
+  if(btn.disabled) return;
   btn.disabled = true;
   btn.textContent = 'Memproses...';
 
+  const sig = JSON.stringify([currentProduct.id, currentSize, currentQty, name, phone, street, city, zip, note]);
+  let snapOpened = false;
   try {
+    if(lastSnap && lastSnap.sig === sig && window.snap){
+      snapOpened = true;
+      payWithSnap(lastSnap.token, sig, btn);
+      return;
+    }
     const r = await fetch(API + '/orders', {
       method: 'POST',
       credentials: 'include',
@@ -2679,25 +2716,13 @@ async function submitOrder(){
         address: { name, phone, street, city, zip, note }
       })
     });
-    const data = await r.json();
+    const data = await r.json().catch(() => ({}));
     if(!r.ok) throw new Error(data.error || 'Gagal buat order');
 
     if(window.snap && data.snap_token){
-      window.snap.pay(data.snap_token, {
-        onSuccess: () => {
-          showToast('Pembayaran berhasil!');
-          closeModal('addressModal');
-          loadProducts();
-          setTimeout(() => openMyOrders(), 700);
-        },
-        onPending: () => {
-          showToast('Menunggu pembayaran kamu');
-          closeModal('addressModal');
-          loadProducts();
-        },
-        onError: () => showToast('Pembayaran gagal'),
-        onClose: () => showToast('Pembayaran dibatalkan')
-      });
+      lastSnap = { sig, token: data.snap_token };
+      snapOpened = true;
+      payWithSnap(data.snap_token, sig, btn);
     } else if(data.redirect_url){
       window.location.href = data.redirect_url;
     } else {
@@ -2706,8 +2731,10 @@ async function submitOrder(){
   } catch(e){
     showToast(e.message);
   } finally {
-    btn.disabled = false;
-    btn.textContent = 'Bayar Sekarang →';
+    if(!snapOpened){
+      btn.disabled = false;
+      btn.textContent = 'Bayar Sekarang →';
+    }
   }
 }
 
@@ -2717,13 +2744,13 @@ async function submitOrder(){
 function orderRowHtml(o){
   return `
     <div class="order-row">
-      <img class="order-thumb" referrerpolicy="no-referrer" src="${o.product_image || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200'}" alt="">
+      <img class="order-thumb" referrerpolicy="no-referrer" src="${esc(o.product_image || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200')}" alt="">
       <div>
-        <div style="font-weight:600">${o.product_name}</div>
-        <div class="order-meta">Ukuran ${o.size} · ${o.qty} pcs × ${formatRp(o.unit_price)} · Total ${formatRp(o.total)}</div>
-        <div class="order-meta">${new Date(o.created_at).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })}</div>
+        <div style="font-weight:600">${esc(o.product_name)}</div>
+        <div class="order-meta">Ukuran ${esc(o.size)} · ${esc(o.qty)} pcs × ${formatRp(o.unit_price)} · Total ${formatRp(o.total)}</div>
+        <div class="order-meta">${parseTs(o.created_at).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })}</div>
       </div>
-      <span class="badge-status badge-${o.status}">${statusLabel(o.status)}</span>
+      <span class="badge-status badge-${esc(o.status)}">${esc(statusLabel(o.status))}</span>
     </div>
   `;
 }
@@ -2734,6 +2761,7 @@ async function openMyOrders(){
   $('myOrdersList').innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">Memuat...</div>';
   try {
     const r = await fetch(API + '/orders/mine', { credentials: 'include' });
+    if(!r.ok) throw new Error(r.status === 401 ? 'Sesi habis, silakan masuk lagi' : 'Gagal memuat pesanan');
     const data = await r.json();
     const orders = data.orders || [];
     if(!orders.length){
@@ -2741,8 +2769,8 @@ async function openMyOrders(){
       return;
     }
     const cutoff = Date.now() - 24 * 3600 * 1000;
-    const terbaru = orders.filter(o => new Date(o.created_at).getTime() >= cutoff);
-    const riwayat = orders.filter(o => new Date(o.created_at).getTime() < cutoff);
+    const terbaru = orders.filter(o => parseTs(o.created_at).getTime() >= cutoff);
+    const riwayat = orders.filter(o => parseTs(o.created_at).getTime() < cutoff);
     let html = '';
     if(terbaru.length){
       html += '<div class="orders-section-title">🆕 Pesanan Terbaru</div>' + terbaru.map(orderRowHtml).join('');
@@ -2752,7 +2780,7 @@ async function openMyOrders(){
     }
     $('myOrdersList').innerHTML = html;
   } catch(e){
-    $('myOrdersList').innerHTML = '<div style="color:var(--accent);text-align:center;padding:40px">Gagal memuat pesanan</div>';
+    $('myOrdersList').innerHTML = '<div style="color:var(--accent);text-align:center;padding:40px">' + esc(e.message || 'Gagal memuat pesanan') + '</div>';
   }
 }
 
@@ -2788,6 +2816,7 @@ function switchAdminTab(tab, btn){
 async function loadAdminProducts(){
   try {
     const r = await fetch(API + '/admin/products', { credentials: 'include' });
+    if(!r.ok) throw new Error(r.status === 401 || r.status === 403 ? 'Akses ditolak / sesi habis' : 'Gagal memuat produk');
     const data = await r.json();
     const products = data.products || [];
     if(!products.length){
@@ -2799,18 +2828,21 @@ async function loadAdminProducts(){
       const imgCount = Array.isArray(p.images) ? p.images.length : (p.image_url ? 1 : 0);
       return `
       <div class="order-row">
-        <img class="order-thumb" referrerpolicy="no-referrer" src="${cover}" alt="">
+        <img class="order-thumb" referrerpolicy="no-referrer" src="${esc(cover)}" alt="">
         <div>
-          <div style="font-weight:600">${p.name}</div>
-          <div class="order-meta">${formatRp(p.price)} · Stok ${p.stock_left}/${p.stock_total} · ${imgCount} foto</div>
+          <div style="font-weight:600">${esc(p.name)}</div>
+          <div class="order-meta">${formatRp(p.price)} · Stok ${esc(p.stock_left)}/${esc(p.stock_total)} · ${imgCount} foto</div>
         </div>
         <div class="order-actions">
-          <button class="btn-sm ghost" onclick="editProduct('${p.id}')">Edit</button>
-          ${isAdmin() ? `<button class="btn-sm danger" onclick="deleteProduct('${p.id}')">Hapus</button>` : ''}
+          <button class="btn-sm ghost" onclick="editProduct(${jsArg(p.id)})">Edit</button>
+          ${isAdmin() ? `<button class="btn-sm danger" onclick="deleteProduct(${jsArg(p.id)})">Hapus</button>` : ''}
         </div>
       </div>`;
     }).join('');
-  } catch(e){ console.error(e); }
+  } catch(e){
+    console.error(e);
+    $('adminProductList').innerHTML = usersMsg(esc(e.message));
+  }
 }
 
 // ============ MULTI IMAGE UPLOAD (PRODUCT) ============
@@ -2833,7 +2865,7 @@ function pfRenderGrid(){
   }
   grid.innerHTML = pfImages.map((url, i) => `
     <div class="pf-img-item" draggable="true" data-idx="${i}">
-      <img src="${url}" referrerpolicy="no-referrer" alt="">
+      <img src="${esc(url)}" referrerpolicy="no-referrer" alt="">
       <button type="button" class="pf-img-x" onclick="pfRemoveImage(${i})" aria-label="Hapus foto">✕</button>
       ${i === 0 ? '<span class="pf-img-cover">COVER</span>' : ''}
     </div>
@@ -2905,7 +2937,7 @@ async function uploadImageFile(file){
     } finally { URL.revokeObjectURL(url); }
   }
 
-  if(up.size > 15 * 1024 * 1024) throw new Error('Ukuran melebihi 15 MB');
+  if(up.size > LB_MAX_BYTES) throw new Error('Ukuran melebihi 15 MB');
 
   const fd = new FormData();
   fd.append('image', up, upName);
@@ -2933,8 +2965,6 @@ async function pfHandleFiles(input){
   for(let i = 0; i < toUpload.length; i++){
     const f = toUpload[i];
     pfUpState(`Mengunggah ${i+1}/${toUpload.length}…`);
-    if(!f.type.startsWith('image/')){ fail++; continue; }
-    if(f.size > 15 * 1024 * 1024){ fail++; continue; }
     try {
       const url = await uploadImageFile(f);
       pfImages.push(url);
@@ -2992,7 +3022,7 @@ async function saveProduct(){
   }
 
   const id = $('pfId').value;
-  const url = id ? API + '/admin/products/' + id : API + '/admin/products';
+  const url = id ? API + '/admin/products/' + encodeURIComponent(id) : API + '/admin/products';
   const method = id ? 'PUT' : 'POST';
 
   try {
@@ -3011,10 +3041,14 @@ async function saveProduct(){
 }
 
 async function editProduct(id){
-  const r = await fetch(API + '/admin/products', { credentials: 'include' });
-  const data = await r.json();
-  const p = (data.products || []).find(x => x.id === id);
-  if(!p) return;
+  let p;
+  try {
+    const r = await fetch(API + '/admin/products', { credentials: 'include' });
+    if(!r.ok) throw new Error('Gagal memuat produk');
+    const data = await r.json();
+    p = (data.products || []).find(x => x.id === id);
+  } catch(e){ showToast(e.message); return; }
+  if(!p){ showToast('Produk tidak ditemukan'); return; }
 
   $('pfId').value = p.id;
   $('pfName').value = p.name;
@@ -3038,11 +3072,15 @@ async function deleteProduct(id){
   if(!isAdmin()){ showToast('Akses ditolak'); return; }
   if(!confirm('Yakin hapus produk ini?')) return;
   try {
-    await fetch(API + '/admin/products/' + id, { method:'DELETE', credentials:'include' });
+    const r = await fetch(API + '/admin/products/' + encodeURIComponent(id), { method:'DELETE', credentials:'include' });
+    if(!r.ok){
+      const d = await r.json().catch(() => ({}));
+      throw new Error(d.error || ('Gagal hapus (' + r.status + ')'));
+    }
     loadAdminProducts();
     loadProducts();
     showToast('Produk dihapus');
-  } catch(e){ showToast('Gagal hapus'); }
+  } catch(e){ showToast(e.message || 'Gagal hapus'); }
 }
 
 function usersMsg(t){ return '<div style="text-align:center;padding:40px;color:var(--muted)">' + t + '</div>'; }
@@ -3060,7 +3098,6 @@ async function loadAdminUsers(){
     if(!users.length){ box.innerHTML = usersMsg('Belum ada user'); return; }
     box.innerHTML = users.map(u => {
       if(u.pending){
-        const ini = esc((u.email || '?').trim()[0].toUpperCase());
         return `
         <div class="order-row" style="opacity:.85">
           <div style="width:38px;height:38px;border-radius:50%;background:var(--surface-3,#e5e5e5);color:var(--ink);display:flex;align-items:center;justify-content:center;font-weight:600">🎁</div>
@@ -3068,11 +3105,11 @@ async function loadAdminUsers(){
             <div style="font-weight:600">${esc(u.email)}</div>
             <div class="order-meta">Gift role: <b>${esc(u.role)}</b> · menunggu login pertama</div>
           </div>
-          <div class="order-actions"><button class="btn-sm danger" onclick="cancelGiftRole(this,'${esc(u.email)}')">Batalkan</button></div>
+          <div class="order-actions"><button class="btn-sm danger" onclick="cancelGiftRole(this,${jsArg(u.email)})">Batalkan</button></div>
         </div>`;
       }
       const role = ROLES.includes(u.role) ? u.role : (u.is_admin ? 'admin' : 'customer');
-      const ini = esc((u.name || u.email || '?').trim()[0].toUpperCase());
+      const ini = esc((String(u.name || u.email || '?').trim()[0] || '?').toUpperCase());
       return `
       <div class="order-row">
         <div style="width:38px;height:38px;border-radius:50%;background:var(--ink);color:var(--bg);display:flex;align-items:center;justify-content:center;font-weight:600">${ini}</div>
@@ -3151,29 +3188,36 @@ async function saveUserRole(btn){
 }
 
 async function loadAdminOrders(){
+  const box = $('adminOrderList');
   try {
     const r = await fetch(API + '/admin/orders', { credentials: 'include' });
+    if(!r.ok) throw new Error(r.status === 401 || r.status === 403 ? 'Akses ditolak / sesi habis' : 'Gagal memuat pesanan');
     const data = await r.json();
     const orders = data.orders || [];
     if(!orders.length){
-      $('adminOrderList').innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">Belum ada pesanan</div>';
+      box.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">Belum ada pesanan</div>';
       return;
     }
-    $('adminOrderList').innerHTML = orders.map(o => `
+    box.innerHTML = orders.map(o => {
+      const a = o.address || {};
+      return `
       <div class="order-row">
         <div>
-          <div style="font-weight:600">#${o.id.slice(0,8).toUpperCase()}</div>
-          <div class="order-meta">${o.buyer_name}</div>
+          <div style="font-weight:600">#${esc(String(o.id || '').slice(0,8).toUpperCase())}</div>
+          <div class="order-meta">${esc(o.buyer_name)}</div>
         </div>
         <div>
-          <div style="font-weight:600">${o.product_name}</div>
-          <div class="order-meta">${o.size} · ${o.qty} pcs × ${formatRp(o.unit_price)} · Total ${formatRp(o.total)}</div>
-          <div class="order-meta">📍 ${o.address.street}, ${o.address.city}</div>
+          <div style="font-weight:600">${esc(o.product_name)}</div>
+          <div class="order-meta">${esc(o.size)} · ${esc(o.qty)} pcs × ${formatRp(o.unit_price)} · Total ${formatRp(o.total)}</div>
+          <div class="order-meta">📍 ${esc(a.street)}, ${esc(a.city)}</div>
         </div>
-        <span class="badge-status badge-${o.status}">${statusLabel(o.status)}</span>
-      </div>
-    `).join('');
-  } catch(e){ console.error(e); }
+        <span class="badge-status badge-${esc(o.status)}">${esc(statusLabel(o.status))}</span>
+      </div>`;
+    }).join('');
+  } catch(e){
+    console.error(e);
+    box.innerHTML = usersMsg(esc(e.message));
+  }
 }
 
 // ============ LOOKBOOK ============
@@ -3367,11 +3411,10 @@ async function lbeHandleFiles(input){
   if(!valid.length){ showToast('File harus gambar, maks 15 MB'); return; }
 
   const sess = lbeSession, draft = lbeDraft;
-  const entries = valid.map((f, k) => ({
-    image_url: URL.createObjectURL(f), _local: null, label: '', uploading: true,
-    size: lbDefaultSize(draft.length + k)
-  }));
-  entries.forEach(e => e._local = e.image_url);
+  const entries = valid.map((f, k) => {
+    const u = URL.createObjectURL(f);
+    return { image_url: u, _local: u, label: '', uploading: true, size: lbDefaultSize(draft.length + k) };
+  });
   draft.push(...entries);
   lbeDirty = true; lbeBusy += entries.length; lbeMode = 'edit';
   lbeRender();
@@ -3601,7 +3644,7 @@ function hreProductsHTML(){
   if(!list.length) return '<div class="pf-img-empty" style="grid-column:1/-1">Belum ada produk aktif yang stoknya tersedia. Tambah produk di tab Produk.</div>';
   return list.map(p => {
     const on = hreProductIds.includes(p.id);
-    return `<label class="hre-chip${on ? ' on' : ''}"><input type="checkbox" ${on ? 'checked' : ''} onchange="hreToggleProduct('${esc(p.id)}', this.checked)"><img src="${esc(heroCover(p))}" referrerpolicy="no-referrer" alt=""><span><b>${esc(p.name)}</b><small>${p.stock_left}/${p.stock_total} pcs · Rp ${formatK(p.price)}</small></span></label>`;
+    return `<label class="hre-chip${on ? ' on' : ''}"><input type="checkbox" ${on ? 'checked' : ''} onchange="hreToggleProduct(${jsArg(p.id)}, this.checked)"><img src="${esc(heroCover(p))}" referrerpolicy="no-referrer" alt=""><span><b>${esc(p.name)}</b><small>${p.stock_left}/${p.stock_total} pcs · Rp ${formatK(p.price)}</small></span></label>`;
   }).join('');
 }
 
@@ -3799,6 +3842,7 @@ async function exportOrders(type){
   try {
     showToast('Menyiapkan file...');
     const r = await fetch(API + '/admin/orders/export', { credentials: 'include' });
+    if(!r.ok) throw new Error(r.status === 401 || r.status === 403 ? 'akses ditolak' : 'server ' + r.status);
     const data = await r.json();
     const orders = data.orders || [];
     if(!orders.length){ showToast('Belum ada order'); return; }
@@ -3808,23 +3852,23 @@ async function exportOrders(type){
 }
 
 function exportExcel(orders){
-  const rows = orders.map(o => ({
+  const rows = orders.map(o => { const a = o.address || {}; return {
     'Order ID': o.id,
-    'Tanggal': new Date(o.created_at).toLocaleString('id-ID'),
+    'Tanggal': parseTs(o.created_at).toLocaleString('id-ID'),
     'Nama Pembeli': o.buyer_name,
     'Email': o.buyer_email,
-    'No. WA': o.address.phone,
+    'No. WA': a.phone || '',
     'Produk': o.product_name,
     'Ukuran': o.size,
     'Qty': o.qty,
     'Harga Satuan': o.unit_price,
     'Total': o.total,
     'Status': o.status,
-    'Alamat': o.address.street,
-    'Kota': o.address.city,
-    'Kode Pos': o.address.zip,
-    'Catatan': o.address.note || ''
-  }));
+    'Alamat': a.street || '',
+    'Kota': a.city || '',
+    'Kode Pos': a.zip || '',
+    'Catatan': a.note || ''
+  }; });
   const ws = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Orders');
@@ -3839,17 +3883,17 @@ function exportPDF(orders){
   doc.text('DSMD — Daftar Pesanan War', 14, 15);
   doc.setFontSize(10);
   doc.text('Diekspor: ' + new Date().toLocaleString('id-ID'), 14, 22);
-  const rows = orders.map(o => [
-    o.id.slice(0,8).toUpperCase(),
+  const rows = orders.map(o => { const a = o.address || {}; return [
+    String(o.id || '').slice(0,8).toUpperCase(),
     o.buyer_name,
     o.product_name + ' (' + o.size + ')',
     o.qty,
     formatRp(o.unit_price),
     formatRp(o.total),
-    o.address.street + ', ' + o.address.city,
-    o.address.phone,
+    (a.street || '') + ', ' + (a.city || ''),
+    a.phone || '',
     o.status
-  ]);
+  ]; });
   doc.autoTable({
     startY: 28,
     head: [['ID','Pembeli','Produk','Qty','Harga Satuan','Total','Alamat','No. WA','Status']],
@@ -3908,10 +3952,9 @@ if(window.MutationObserver){
 }
 
 function nextWarDrop(){
-  const now = new Date();
-  const nowUtc = new Date(now.toISOString());
+  const nowUtc = new Date();
   const dayOfWeek = nowUtc.getUTCDay();
-  let daysUntilSat = (6 - dayOfWeek + 7) % 7;
+  const daysUntilSat = (6 - dayOfWeek + 7) % 7;
   const targetUtc = new Date(Date.UTC(
     nowUtc.getUTCFullYear(), nowUtc.getUTCMonth(),
     nowUtc.getUTCDate() + daysUntilSat, 13, 0, 0
@@ -3971,20 +4014,22 @@ window.addEventListener('resize', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
   initGoogleLogin();
-  apiReady = resolveApi();
-  apiReady.then(async () => {
-    checkSession();
-    await loadProducts();
-    loadLookbook();
-    loadHero();
-  });
+  checkSession();
+  loadLookbook();
+  loadProducts().then(loadHero);   // hero butuh productsCache
 });
 
 document.addEventListener('keydown', e => {
-  if(e.key === 'Escape'){
-    document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
-    $('userMenu').classList.remove('show');
-  }
+  if(e.key !== 'Escape') return;
+  // 1) fullscreen foto ditutup dulu, modal di bawahnya tetap
+  if(document.querySelector('.pd-fullscreen')){ pdCloseFullscreen(); return; }
+  // 2) editor punya konfirmasi "belum disimpan" dan cleanup sendiri
+  document.querySelectorAll('.modal-overlay.show').forEach(m => {
+    if(m.id === 'lookbookModal') closeLookbookEditor();
+    else if(m.id === 'heroModal') closeHeroEditor();
+    else m.classList.remove('show');
+  });
+  $('userMenu').classList.remove('show');
 });
 </script>
   <script>

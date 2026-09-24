@@ -736,7 +736,7 @@ footer{
 
     z-index: 999999;
 
-    animation: splashExit 0.9s ease-in-out 5.8s forwards;
+    animation: splashExit 0.9s ease-in-out 6.4s forwards;
 }
 
 
@@ -846,7 +846,7 @@ footer{
 
     background: linear-gradient(90deg, rgba(255,255,255,0.15), rgba(255,255,255,0.95));
 
-    animation: loadingFill 4.5s cubic-bezier(.65,0,.35,1) 1.1s forwards;
+    animation: loadingFill 5.1s cubic-bezier(.65,0,.35,1) 1.1s forwards;
 }
 
 
@@ -1759,43 +1759,23 @@ html.logo-light:not([data-theme="dark"]) .brand img{filter:brightness(0)}
   .dsmd-logo-box::before{border-radius:44px}
 }
 
-/* ===== D S M D: efek disilet pisau ===== */
-.dsmd-mean{margin-top:34px;font-size:22px;gap:0 8px}
-.dsmd-mean .w{opacity:1;transform:none;filter:none;animation:none;display:inline-block}
-.dsmd-mean .w:nth-child(1){--d:1.3s}
-.dsmd-mean .w:nth-child(2){--d:2.0s}
-.dsmd-mean .w:nth-child(3){--d:2.7s}
-.dsmd-mean .w:nth-child(4){--d:3.4s}
-.dsmd-mean .wi{position:relative;display:inline-grid;line-height:1.2}
-.dsmd-mean .a,.dsmd-mean .b{display:inline-block;padding:.32em .14em;opacity:0;will-change:transform}
-.dsmd-mean .a,.dsmd-mean .b{grid-area:1/1}
-.dsmd-mean .a{clip-path:polygon(-10% -10%,110% -10%,110% calc(50% - 5px),-10% calc(50% + 5px));animation:razorA 1.5s cubic-bezier(.22,1,.36,1) var(--d) both}
-.dsmd-mean .b{clip-path:polygon(-10% calc(50% + 5px),110% calc(50% - 5px),110% 110%,-10% 110%);animation:razorB 1.5s cubic-bezier(.22,1,.36,1) var(--d) both}
-.dsmd-mean .a b,.dsmd-mean .b b{animation:none}
-.dsmd-mean .cut{position:absolute;left:0;top:calc(50% + 5px);width:100%;height:2px;margin-top:-1px;border-radius:2px;pointer-events:none;
-  background:linear-gradient(90deg,transparent,#fff 12%,#fff 88%,transparent);
-  box-shadow:0 0 12px 2px rgba(232,180,160,.9),0 0 26px 6px rgba(200,85,61,.55);
-  transform-origin:0 50%;transform:rotate(var(--ang,-.1rad)) scaleX(0);opacity:0;
-  animation:bladeSlash 1.5s cubic-bezier(.22,1,.36,1) var(--d) both}
-@keyframes bladeSlash{
-  0%{transform:rotate(var(--ang,-.1rad)) scaleX(0);opacity:1}
-  22%{transform:rotate(var(--ang,-.1rad)) scaleX(1);opacity:1}
-  40%{transform:rotate(var(--ang,-.1rad)) scaleX(1);opacity:1}
-  100%{transform:rotate(var(--ang,-.1rad)) scaleX(1);opacity:.35}
-}
-@keyframes razorA{
-  0%,22%{opacity:0;transform:translate(0,0)}
-  24%{opacity:1;transform:translate(0,0)}
-  48%{opacity:1;transform:translate(-2px,-8px) rotate(-1.2deg)}
-  100%{opacity:1;transform:translate(0,-2px)}
-}
-@keyframes razorB{
-  0%,22%{opacity:0;transform:translate(0,0)}
-  24%{opacity:1;transform:translate(0,0)}
-  48%{opacity:1;transform:translate(2px,8px) rotate(1.2deg)}
-  100%{opacity:1;transform:translate(0,2px)}
-}
-@media(max-width:600px){.dsmd-mean{font-size:17px;gap:0 4px;margin-top:26px}}
+/* ===== D S M D: inisial "ditulis" dengan silet ===== */
+.dsmd-mean{margin-top:34px;font-size:22px;gap:6px 14px}
+.dsmd-mean .w{opacity:1;transform:none;filter:none;animation:none;display:inline-flex;align-items:flex-end}
+.dsmd-mean .w:nth-child(1){--r:1.9s}
+.dsmd-mean .w:nth-child(2){--r:2.7s}
+.dsmd-mean .w:nth-child(3){--r:3.5s}
+.dsmd-mean .w:nth-child(4){--r:4.3s}
+.dsmd-mean .ini{height:1.75em;width:auto;overflow:visible;margin-right:2px;opacity:0;filter:drop-shadow(0 0 5px rgba(200,85,61,.85))}
+.dsmd-mean .ini path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.dsmd-mean .ini .g{stroke:#c8553d;stroke-width:6;opacity:.42}
+.dsmd-mean .ini .c{stroke:#ffe1d6;stroke-width:2.8}
+.dsmd-mean .ini .bl circle{fill:#fff}
+.dsmd-mean .ini .bl path{stroke:#fff;stroke-width:1.8}
+.dsmd-mean .ini .bl{opacity:0}
+.dsmd-mean .rest{opacity:0;filter:blur(8px);transform:translateX(-8px);padding-bottom:.12em;animation:restIn .9s cubic-bezier(.16,1,.3,1) var(--r) both}
+@keyframes restIn{to{opacity:1;filter:blur(0);transform:none}}
+@media(max-width:600px){.dsmd-mean{font-size:17px;gap:4px 10px;margin-top:26px}}
 </style>
 </head>
 <body data-layout="promax-lite">
@@ -1826,10 +1806,10 @@ html.logo-light:not([data-theme="dark"]) .brand img{filter:brightness(0)}
             <img src="logo.png" alt="DSMD" data-logo>
         </div>
         <div class="dsmd-mean" role="text" aria-label="DSMD: Depresi Soul Mental Disorder">
-            <span class="w"><span class="wi"><span class="a"><b>D</b>epresi</span><span class="b" aria-hidden="true"><b>D</b>epresi</span><i class="cut"></i></span></span>
-            <span class="w"><span class="wi"><span class="a"><b>S</b>oul</span><span class="b" aria-hidden="true"><b>S</b>oul</span><i class="cut"></i></span></span>
-            <span class="w"><span class="wi"><span class="a"><b>M</b>ental</span><span class="b" aria-hidden="true"><b>M</b>ental</span><i class="cut"></i></span></span>
-            <span class="w"><span class="wi"><span class="a"><b>D</b>isorder</span><span class="b" aria-hidden="true"><b>D</b>isorder</span><i class="cut"></i></span></span>
+            <span class="w"><svg class="ini" viewBox="0 0 44 60" aria-hidden="true"><path class="g" d="M8 6 V50 H20 C36 50 38 38 38 28 C38 18 36 6 20 6 H8"/><path class="c" d="M8 6 V50 H20 C36 50 38 38 38 28 C38 18 36 6 20 6 H8"/><g class="bl"><circle r="2.6"/><path d="M-8 6 L8 -6"/></g></svg><span class="rest">epresi</span></span>
+            <span class="w"><svg class="ini" viewBox="0 0 44 60" aria-hidden="true"><path class="g" d="M35 14 C31 6 17 5 12 12 C7 20 14 25 22 29 C31 33 38 38 33 47 C28 55 13 55 8 46"/><path class="c" d="M35 14 C31 6 17 5 12 12 C7 20 14 25 22 29 C31 33 38 38 33 47 C28 55 13 55 8 46"/><g class="bl"><circle r="2.6"/><path d="M-8 6 L8 -6"/></g></svg><span class="rest">oul</span></span>
+            <span class="w"><svg class="ini" viewBox="0 0 44 60" aria-hidden="true"><path class="g" d="M6 52 V8 L22 36 L38 8 V52"/><path class="c" d="M6 52 V8 L22 36 L38 8 V52"/><g class="bl"><circle r="2.6"/><path d="M-8 6 L8 -6"/></g></svg><span class="rest">ental</span></span>
+            <span class="w"><svg class="ini" viewBox="0 0 44 60" aria-hidden="true"><path class="g" d="M8 6 V50 H20 C36 50 38 38 38 28 C38 18 36 6 20 6 H8"/><path class="c" d="M8 6 V50 H20 C36 50 38 38 38 28 C38 18 36 6 20 6 H8"/><g class="bl"><circle r="2.6"/><path d="M-8 6 L8 -6"/></g></svg><span class="rest">isorder</span></span>
         </div>
         <div class="dsmd-tagline"><span>Anak Jogja, Untuk Semua</span></div>
     </div>
@@ -1848,19 +1828,38 @@ html.logo-light:not([data-theme="dark"]) .brand img{filter:brightness(0)}
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* sudut pisau silet mengikuti lebar tiap kata */
-    const setBlade = () => document.querySelectorAll(".dsmd-mean .wi").forEach(el => {
-        el.style.setProperty("--ang", Math.atan2(-10, el.offsetWidth) + "rad");
+    /* inisial D S M D digambar seperti digores silet */
+    const DELAY = [1.2, 2.0, 2.8, 3.6], DRAW = 0.95;
+    const inis = [].map.call(document.querySelectorAll(".dsmd-mean .ini"), svg => {
+        const c = svg.querySelector(".c"), g = svg.querySelector(".g"), L = c.getTotalLength();
+        c.style.strokeDasharray = g.style.strokeDasharray = L;
+        c.style.strokeDashoffset = g.style.strokeDashoffset = L;
+        return { svg, c, g, L, bl: svg.querySelector(".bl") };
     });
-    setBlade();
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(setBlade);
-    window.addEventListener("load", setBlade);
+    const ts = performance.now();
+    (function draw(now){
+        const t = (now - ts) / 1000; let alive = false;
+        inis.forEach((o, i) => {
+            const k = Math.min(Math.max((t - DELAY[i]) / DRAW, 0), 1);
+            const e = k * k * (3 - 2 * k);
+            const off = o.L * (1 - e);
+            o.c.style.strokeDashoffset = o.g.style.strokeDashoffset = off;
+            o.svg.style.opacity = k > 0 ? 1 : 0;
+            if (k > 0 && k < 1) {
+                const pt = o.c.getPointAtLength(o.L * e);
+                o.bl.setAttribute("transform", "translate(" + pt.x + " " + pt.y + ")");
+                o.bl.style.opacity = 1;
+            } else o.bl.style.opacity = 0;
+            if (t < DELAY[i] + DRAW) alive = true;
+        });
+        if (alive) requestAnimationFrame(draw);
+    })(ts);
 
     /* counter % + teks status (sinkron dengan bar: mulai 1.1s, durasi 2.4s) */
     const pct = document.getElementById("dsmd-load-pct");
     const txt = document.getElementById("dsmd-load-text");
     const steps = ["Menyiapkan Drop", "Memuat Koleksi", "Hampir Siap", "Siap War!"];
-    const t0 = performance.now() + 1100, dur = 4500;
+    const t0 = performance.now() + 1100, dur = 5100;
     (function tick(now){
         const k = Math.min(Math.max((now - t0) / dur, 0), 1);
         const e = k < .5 ? 2*k*k : 1 - Math.pow(-2*k + 2, 2) / 2;
@@ -1878,7 +1877,7 @@ document.addEventListener("DOMContentLoaded", () => {
             splash.remove();
         }
 
-    }, 7000);
+    }, 7700);
 
 });
 

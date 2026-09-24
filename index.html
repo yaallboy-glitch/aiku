@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" type="image/png" href="logo.png">
 <title>DSMD — WAR DROP | Anak Jogja, Untuk Semua</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -57,6 +58,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
 .nav{position:fixed;top:38px;left:0;right:0;z-index:100;padding:20px 40px;display:flex;align-items:center;justify-content:space-between;transition:background .3s,padding .3s,backdrop-filter .3s,top .3s}
 .nav.scrolled{padding:12px 40px;background:var(--nav-bg);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.brand img{height:30px;width:auto;display:block}
+.footer-brand h3 img{height:40px;width:auto;display:block}
+.brand::after,.footer-brand h3::after{display:none!important}
 .brand{font-size:20px;font-weight:700;letter-spacing:.32em;display:inline-flex;align-items:center;position:relative}
 .brand::after{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--accent);margin-left:4px;margin-bottom:-14px}
 .nav-links{display:flex;gap:34px;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
@@ -1525,11 +1529,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
     <div class="dsmd-center">
         <div class="dsmd-logo-box">
             <!-- Sementara pakai teks -->
-            <span>DSMD</span>
-
-            <!-- Nanti bisa diganti:
-            <img src="logo-dsmd.png" alt="DSMD">
-            -->
+            <img src="logo.png" alt="DSMD">
         </div>
     </div>
 
@@ -1577,7 +1577,7 @@ document.addEventListener("DOMContentLoaded", () => {
 </div>
 
 <nav class="nav" id="nav">
-  <a href="#" class="brand">DSMD</a>
+  <a href="#" class="brand"><img src="logo.png" alt="DSMD"></a>
   <div class="nav-links">
     <a href="#war" class="active">War</a>
     <a href="#shop">Drop</a>
@@ -1758,7 +1758,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <footer>
   <div class="footer-grid">
     <div class="footer-brand">
-      <h3>DSMD</h3>
+      <h3><img src="logo.png" alt="DSMD"></h3>
       <p>Independent clothing brand dari Yogyakarta. Semua rilisan limited, semua handmade, semua war.</p>
       <div class="jogja-stamp">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>

@@ -1779,8 +1779,8 @@ html.logo-light:not([data-theme="dark"]) .brand img{filter:brightness(0)}
 </style>
 <style id="dsmd-premium-refresh">
 /* Refined editorial finish — presentation only; commerce and admin behavior unchanged. */
-:root{--accent:#bd4f38;--accent-soft:#e8ad96;--line:#ded9d0;--ease-pro:cubic-bezier(.2,.8,.2,1)}
-:root[data-theme="dark"]{--accent:#ed7659;--accent-soft:#f2a58d;--line:#34302b}
+:root{--accent:#35383b;--accent-soft:#aeb2b6;--line:#dedfe1;--ease-pro:cubic-bezier(.2,.8,.2,1)}
+:root[data-theme="dark"]{--accent:#d5d8dc;--accent-soft:#9da3aa;--line:#36393d}
 html{scroll-behavior:smooth;scroll-padding-top:100px}
 body{letter-spacing:-.008em}
 .ticker{background:var(--accent);color:#fff;border:0}
@@ -1833,6 +1833,22 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
  html{scroll-behavior:auto}
  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
+
+/* Monochrome overrides for legacy orange styles, splash and showcase. */
+:root[data-theme="dark"] .ticker,:root[data-theme="dark"] .war-stats,:root[data-theme="dark"] .editorial,:root[data-theme="dark"] footer{--ink:#17191b;--bg:#f2f3f4}
+.ticker,.war-stats{background:var(--accent)!important}
+.ticker-track span::after,.ticker-track b,.marquee-track span::after,.hero-text .tag,.hero h1 em,.countdown-label .title i,.cd-box.sec .cd-num,.war-ready,.card-tag.war,.editorial-content .tag,.editorial-content h2 em,.editorial-stats .stat b span,.news-note b,.jogja-stamp,.footer-col a:hover{color:var(--accent)!important}
+.card-tag.war,.pf-img-item .pf-img-x:hover,.lbe-x:hover,.btn-primary:hover:not(:disabled),.news-form button:hover,.socials a:hover,.modal-close:hover{background:var(--accent)!important}
+.card-tag.war,.pf-img-item .pf-img-x:hover,.lbe-x:hover{color:#fff!important}
+.countdown-wrap::before,.cd-box.sec,.card-tag.war,.jogja-stamp{border-color:var(--accent)!important}
+.hero-text .tag::before,.hero-badge,.card-tag.war::before{background-color:var(--accent)!important}
+.dsmd-logo-box::before{background:conic-gradient(from var(--a),transparent 0 55%,#aeb2b6 75%,#fff 90%,transparent 100%)!important}
+.dsmd-logo-box::after{background:radial-gradient(circle,rgba(160,165,170,.25),transparent 60%)!important}
+.dsmd-ring{border-color:rgba(190,195,200,.55)!important}.dsmd-orbit b{box-shadow:0 0 14px 3px rgba(190,195,200,.6)!important}
+.dsmd-loading-fill{background:linear-gradient(90deg,#8b9096,#fff)!important;box-shadow:0 0 12px rgba(190,195,200,.4)!important}
+.dsmd-mean b{color:#d5d8dc!important;text-shadow:0 0 18px rgba(180,185,190,.35)!important}
+.sc-photo{border-color:rgba(210,215,220,.45)!important;box-shadow:0 50px 100px -30px rgba(0,0,0,.9),0 0 80px -20px rgba(180,185,190,.14)!important}
+.sc-c{border-color:#c3c7cc!important}.sc-no,.sc-orn{color:#c3c7cc!important}.sc-tag{background:#45494e!important}.sc-bar i{background:linear-gradient(90deg,#777d84,#c3c7cc)!important}.sc-open:hover,.sc-close:hover{background:#62676d!important}
 </style>
 </head>
 <body data-layout="promax-lite">
@@ -2020,7 +2036,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
       <div class="countdown-foot">
         <span>Ingat: <b>1 item bisa habis dalam &lt;30 detik</b></span>
-        <span class="war-ready">◆ <span id="warriorsCount">1.247</span> warriors ready</span>
+        <span class="war-ready">◆ Jadwal rilis resmi</span>
       </div>
     </div>
 
@@ -2065,7 +2081,6 @@ document.addEventListener("DOMContentLoaded", () => {
   <div class="war-stats reveal">
     <div class="stat"><b id="statDropped">—</b><span>War Drops</span></div>
     <div class="stat"><b id="statSold">—</b><span>Terjual</span></div>
-    <div class="stat"><b id="statWarriors">—</b><span>Warriors Fight</span></div>
     <div class="stat"><b>0</b><span>Restocks — Ever</span></div>
   </div>
 
@@ -2098,8 +2113,6 @@ document.addEventListener("DOMContentLoaded", () => {
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </a>
     <div class="editorial-stats reveal">
-      <div class="stat"><b>06</b><span>War Drops</span></div>
-      <div class="stat"><b>100<span>%</span></b><span>Handmade</span></div>
       <div class="stat"><b>YK</b><span>Origin</span></div>
     </div>
   </div>
@@ -2129,7 +2142,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <input type="email" placeholder="emailkamu@contoh.com" required>
       <button type="submit">Kabarin Aku</button>
     </form>
-    <div class="news-note reveal">◆ <b id="notifyCount">4.312</b> orang udah daftar. Giliran kamu?</div>
+    <div class="news-note reveal">◆ Tidak ada spam. Berhenti berlangganan kapan saja.</div>
   </div>
 </section>
 
@@ -2719,7 +2732,6 @@ async function loadPurchasedProducts(){
 
 function updateHeroAndStats(){
   const totalSold = productsCache.reduce((a,p) => a + (p.stock_total - p.stock_left), 0);
-  const totalWarriors = 4000 + totalSold;
 
   renderHero();
 
@@ -2730,7 +2742,7 @@ function updateHeroAndStats(){
   if(statSold) statSold.textContent = totalSold.toLocaleString('id-ID');
 
   const statWarriors = $('statWarriors');
-  if(statWarriors) statWarriors.textContent = totalWarriors.toLocaleString('id-ID');
+  if(statWarriors) statWarriors.closest('.stat')?.remove();
 }
 
 function renderProducts(products){
@@ -4392,23 +4404,6 @@ function tickCountdown(){
 tickCountdown();
 setInterval(tickCountdown, 1000);
 
-const warriorsEl = $('warriorsCount');
-if(warriorsEl){
-  let c = 1247;
-  setInterval(() => {
-    if(Math.random() > 0.4){
-      c += Math.floor(Math.random() * 3) + 1;
-      warriorsEl.textContent = c.toLocaleString('id-ID');
-    }
-  }, 3200);
-}
-const notifyEl = $('notifyCount');
-if(notifyEl){
-  let n = 4312;
-  setInterval(() => {
-    if(Math.random() > 0.5){ n++; notifyEl.textContent = n.toLocaleString('id-ID'); }
-  }, 5000);
-}
 
 const sections = document.querySelectorAll('section[id]');
 const navLinks = document.querySelectorAll('.nav-links a');

@@ -2476,6 +2476,40 @@ document.addEventListener('click', e => {
 
 let gsiReady = false, gsiTries = 0, lastLoginErr = '';
 function diagShow(lines){ const d = $('loginDiag'); if(d){ d.style.display = 'block'; d.textContent = lines.join('\n'); } }
+
+// ============ INPUT VALIDATION ============
+function validateProductInput(name, price, stock) {
+  const errors = [];
+  
+  if (!name || name.trim().length < 3) {
+    errors.push('Nama produk minimal 3 karakter');
+  }
+  
+  const priceNum = parseFloat(price);
+  if (isNaN(priceNum) || priceNum < 0) {
+    errors.push('Harga harus berupa angka positif');
+  }
+  
+  const stockNum = parseInt(stock);
+  if (isNaN(stockNum) || stockNum < 0) {
+    errors.push('Stok harus berupa angka positif');
+  }
+  
+  if (errors.length > 0) {
+    throw new Error(errors.join(', '));
+  }
+  
+  return { name: name.trim(), price: priceNum, stock: stockNum };
+}
+
+function validateEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!re.test(email)) {
+    throw new Error('Format email tidak valid');
+  }
+  return email.trim();
+}
+
 async function runLoginDiag(){
   const L = [];
   L.push('Origin : ' + location.origin + (location.protocol === 'file:' ? '  ✗ (jangan buka dari file://)' : ''));
@@ -3161,7 +3195,8 @@ async function loadAdminProducts(){
       </div>`;
     }).join('');
   } catch(e){
-    console.error(e);
+    console.error("renderAdminProducts error:", e);
+    showToast("Gagal memuat produk: " + e.message, "error");
     $('adminProductList').innerHTML = usersMsg(esc(e.message));
   }
 }
@@ -3294,6 +3329,7 @@ async function pfHandleFiles(input){
     } catch(e){
       fail++;
       console.error('Upload error:', e);
+      showToast("Upload gagal: " + e.message, "error");
     }
   }
 
@@ -3536,7 +3572,8 @@ async function loadAdminOrders(){
       </div>`;
     }).join('');
   } catch(e){
-    console.error(e);
+    console.error("renderAdminProducts error:", e);
+    showToast("Gagal memuat produk: " + e.message, "error");
     box.innerHTML = usersMsg(esc(e.message));
   }
 }

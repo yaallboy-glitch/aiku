@@ -1777,6 +1777,63 @@ html.logo-light:not([data-theme="dark"]) .brand img{filter:brightness(0)}
 @keyframes restIn{to{opacity:1;filter:blur(0);transform:none}}
 @media(max-width:600px){.dsmd-mean{font-size:17px;gap:4px 10px;margin-top:26px}}
 </style>
+<style id="dsmd-premium-refresh">
+/* Refined editorial finish — presentation only; commerce and admin behavior unchanged. */
+:root{--accent:#bd4f38;--accent-soft:#e8ad96;--line:#ded9d0;--ease-pro:cubic-bezier(.2,.8,.2,1)}
+:root[data-theme="dark"]{--accent:#ed7659;--accent-soft:#f2a58d;--line:#34302b}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{letter-spacing:-.008em}
+.ticker{background:var(--accent);color:#fff;border:0}
+.ticker-track span::after{color:#f4d5c8}
+.nav{background:linear-gradient(180deg,rgba(246,244,239,.96),rgba(246,244,239,.82));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+:root[data-theme="dark"] .nav{background:linear-gradient(180deg,rgba(20,19,18,.97),rgba(20,19,18,.84))}
+.nav.scrolled{background:var(--nav-bg)}
+.hero{max-width:1680px}
+.hero h1{letter-spacing:-.055em;line-height:.91}
+.hero-text .tag{background:transparent;border:0;border-radius:0;padding:0;letter-spacing:.2em}
+.hero-visual{border-radius:3px;box-shadow:0 34px 90px -48px rgba(14,14,14,.48)}
+.hero-caption{border-radius:3px}
+.btn-primary,.btn-light{border-radius:3px;letter-spacing:.13em}
+.btn-ghost{letter-spacing:.13em}
+section:not(.editorial):not(.newsletter){max-width:1680px;margin-inline:auto}
+.section-head{border-top:1px solid var(--line);padding-top:22px}
+.section-head h2{letter-spacing:-.05em}
+.war-stats{border-radius:3px;background:var(--accent);box-shadow:none}
+.war-stats::before{background:#f0b8a3;opacity:.2}
+.collection{gap:clamp(14px,2vw,30px)}
+.card{border-radius:0}
+.card-img{border-radius:2px;box-shadow:none}
+.card:hover .card-img{box-shadow:0 18px 42px -26px rgba(14,14,14,.42)}
+.card-tag{border-radius:2px}
+.card-quick{border-radius:2px}
+.card-info{align-items:center}
+.card-info h3{font-size:clamp(17px,1.5vw,22px);letter-spacing:-.025em}
+.card-price{font-family:var(--mono);font-size:12px;letter-spacing:-.04em}
+.editorial{max-width:none}
+.editorial-media img{transition:transform 1.2s var(--ease-pro);will-change:transform}
+.editorial-media:hover img{transform:scale(1.035)}
+.editorial-content{max-width:760px}
+.lookbook{gap:10px}
+.look{border-radius:2px;box-shadow:none}
+.newsletter{background:var(--surface-2)}
+.news-form{border:1px solid var(--line);border-radius:3px;box-shadow:none}
+.news-form button{border-radius:2px}
+footer{border-top:3px solid var(--accent)}
+.modal-box{border-radius:4px}
+.card,.look,.btn-primary,.btn-light,.cart-btn,.auth-btn,.theme-btn,.size-btn,.qty-btn{transition-timing-function:var(--ease-pro)}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+@media(max-width:680px){
+ .hero h1{line-height:.94}
+ .hero-visual{border-radius:2px}
+ .section-head{padding-top:16px}
+ .war-stats{border-radius:2px}
+ .news-form{border:0;background:transparent}
+}
+@media(prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+</style>
 </head>
 <body data-layout="promax-lite">
 

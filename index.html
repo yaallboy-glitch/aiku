@@ -7,7 +7,7 @@
 <title>DSMD — WAR DROP | Anak Jogja, Untuk Semua</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-ACqSDUkXInRMbWbr"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -19,7 +19,7 @@
 :root{
   --bg:#fafafa;--ink:#0a0a0a;--muted:#6b6b6b;--line:#0a0a0a;
   --accent:#0a0a0a;--accent-soft:#d4d4d4;
-  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;--mono:'JetBrains Mono',ui-monospace,monospace;
   --surface:#ffffff;--surface-2:#f5f5f5;--surface-3:#fafafa;--ph:#eeeeee;--nav-bg:rgba(250,250,250,.82);--nl:#f5f5f5;--blob-b:#e5e5e5;--hero-ph:#f0f0f0;
   --gutter:24px;
 }
@@ -80,7 +80,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .auth-wrap{position:relative}
 .user-menu{display:none;position:absolute;top:calc(100% + 10px);right:0;background:var(--bg);border:1px solid var(--line);border-radius:0;padding:8px;min-width:220px;box-shadow:0 0 0 0 transparent;z-index:150}
 .user-menu.show{display:block;animation:menuIn .2s ease}
-@keyframes menuIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes revealUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 .user-menu-header{padding:10px 12px;border-bottom:1px solid var(--line);margin-bottom:6px}
 .user-menu-header .n{font-weight:600;font-size:13px;margin-bottom:2px}
 .user-menu-header .e{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
@@ -232,10 +232,10 @@ section{padding:clamp(84px,10vh,120px) max(var(--gx),36px);position:relative;z-i
 .war-stats .stat b span{color:var(--accent-soft)}
 .war-stats .stat span{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(246,244,239,.5);display:block;margin-top:10px;font-weight:500}
 
-.collection{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
-.card{cursor:pointer;position:relative}
+.collection{display:grid;grid-template-columns:repeat(12,1fr);gap:24px}
+.card{cursor:pointer;position:relative;grid-column:span 4}
 .card-img{aspect-ratio:3/4;overflow:hidden;border-radius:0;background:var(--ph);position:relative}
-.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .9s cubic-bezier(.2,.9,.3,1)}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .9s cubic-bezier(.2,.9,.3,1)}.card.featured{grid-column:span 8;grid-row:span 2}
 .card:hover .card-img img{transform:scale(1.06)}
 .card-img::after{content:;position:absolute;inset:0;background:linear-gradient(to top,var(--ink),transparent 55%);opacity:0;transition:opacity .3s}
 .card:hover .card-img::after{opacity:1}
@@ -249,7 +249,7 @@ section{padding:clamp(84px,10vh,120px) max(var(--gx),36px);position:relative;z-i
 .card-quick:hover{background:var(--accent);color:#fff}
 .card-quick.sold{background:var(--ink);color:var(--bg);pointer-events:none;transform:translateY(0);opacity:1}
 .card-info{display:flex;justify-content:space-between;align-items:start;padding-top:16px;gap:16px}
-.card-info h3{font-family:var(--mono);font-size:19px;font-weight:400;letter-spacing:-.01em;margin-bottom:3px}
+.card-info h3{font-family:var(--serif);font-size:20px;font-weight:500;letter-spacing:-.02em;margin-bottom:4px}
 .card-info .desc{font-size:11.5px;color:var(--muted);letter-spacing:.03em}
 .card-price{font-size:14px;font-weight:600;white-space:nowrap;padding-top:2px;font-variant-numeric:tabular-nums}
 .card-price .cur{font-size:10px;color:var(--muted);font-weight:500;margin-right:2px}
@@ -257,7 +257,7 @@ section{padding:clamp(84px,10vh,120px) max(var(--gx),36px);position:relative;z-i
 .editorial{padding:0;background:var(--ink);color:var(--bg);display:grid;grid-template-columns:1fr 1fr;position:relative;z-index:2}
 .editorial-media{position:relative;overflow:hidden;min-height:640px}
 .editorial-media img{width:100%;height:100%;object-fit:cover}
-.editorial-media::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,var(--ink),transparent 50%);mix-blend-mode:normal}
+.editorial-media::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,var(--ink),transparent 50%);opacity:.35}
 .editorial-content{padding:100px 60px;display:flex;flex-direction:column;justify-content:center}
 .editorial-content .tag{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-soft);margin-bottom:24px;font-weight:600}
 .editorial-content h2{font-family:var(--mono);font-size:clamp(34px,4.3vw,58px);font-weight:400;line-height:1.04;letter-spacing:-.02em;margin-bottom:26px}

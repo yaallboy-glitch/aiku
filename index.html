@@ -12,10 +12,28 @@
 <body>
 <div class="grain" aria-hidden="true"></div>
 <header class="top">
-<a class="logo" href="#"><img src="logo.png" alt="DSMD"></a>
-<form class="search" action="#katalog"><input type="search" placeholder="Cari parka, tee, cargo..."><button type="submit">Cari</button></form>
-<nav><a href="#katalog">Katalog</a><a href="#kategori">Kategori</a><a href="#promo">Promo</a><a href="#toko">Toko</a></nav>
-<a class="btn-small" href="#keranjang">Keranjang (0)</a>
+  <a class="logo" href="#"><img src="logo.png" alt="DSMD"></a>
+  <div class="search-wrap">
+    <input type="search" id="search-input" placeholder="Cari parka, tee, cargo, aksesoris...">
+    <span class="search-kbd mono">⌘K</span>
+  </div>
+  <nav class="nav-dock" id="nav-dock">
+    <div class="dock-pill" id="dock-pill"></div>
+    <a href="#katalog" class="nav-dock-link active">Katalog</a>
+    <a href="#eksklusif" class="nav-dock-link">Eksklusif</a>
+    <a href="#manifesto" class="nav-dock-link">Manifesto</a>
+    <a href="#toko" class="nav-dock-link">Toko</a>
+  </nav>
+  <div class="top-actions">
+    <button type="button" class="btn-admin-pill" id="btn-open-admin">
+      <span class="indicator-dot"></span>
+      <span>Admin / Upload</span>
+    </button>
+    <button type="button" class="btn-cart-pill btn-trigger-cart">
+      <span>Keranjang</span>
+      <b class="cart-count-badge">0</b>
+    </button>
+  </div>
 </header>
 <main>
 <section class="hero">
@@ -30,14 +48,34 @@
 <div class="meta"><div><b>047</b><span>pcs / drop</span></div><div><b>01</b><span>tempat beli</span></div><div><b>00</b><span>reseller resmi</span></div></div>
 </div>
 </section>
-<section class="strip" id="katalog">
-<div class="strip-head"><h2>KATALOG / 001</h2><p>Hanya di dsmd — verifikasi kode di setiap tag.</p></div>
-<div class="cats" id="kategori"><a class="on" href="#katalog">Semua</a><a href="#katalog">Parka</a><a href="#katalog">Tee</a><a href="#katalog">Cargo</a><a href="#katalog">Aksesoris</a></div>
-<div class="grid">
-<article class="card"><div class="thumb t1"><span>01</span></div><div class="info"><p class="rate">★ 4.9 · 120 terjual · Jogja</p><h3>MONO PARKA “VOID”</h3><p>Ripstop / seam-sealed / 47 pcs</p><div class="row"><b>Rp 1.890.000</b><a href="#keranjang">+ Keranjang</a></div></div></article>
-<article class="card tall"><div class="thumb t2"><span>02</span></div><div class="info"><p class="rate">★ 5.0 · 340 terjual · Jogja</p><h3>ABSTRAK TEE “GRAIN”</h3><p>Heavy cotton 240gsm / sablon retak</p><div class="row"><b>Rp 449.000</b><a href="#keranjang">+ Keranjang</a></div></div></article>
-<article class="card"><div class="thumb t3"><span>03</span></div><div class="info"><p class="rate">★ 4.8 · 89 terjual · Jogja</p><h3>CARGO “FRACTURE”</h3><p>Potongan asimetris / limited</p><div class="row"><b>Rp 890.000</b><a href="#keranjang">+ Keranjang</a></div></div></article>
+<div class="marquee-bar" aria-hidden="true">
+  <div class="marquee-track">
+    <span>DSMD JOGJA OFFICIAL STORE</span><i>·</i>
+    <span>HANYA TERSEDIA DI SINI</span><i>·</i>
+    <span>LIMITED 47 PCS PER DROP</span><i>·</i>
+    <span>NFC AUTHENTICATION VERIFIED</span><i>·</i>
+    <span>DSMD JOGJA OFFICIAL STORE</span><i>·</i>
+    <span>HANYA TERSEDIA DI SINI</span><i>·</i>
+    <span>LIMITED 47 PCS PER DROP</span><i>·</i>
+    <span>NFC AUTHENTICATION VERIFIED</span><i>·</i>
+  </div>
 </div>
+<section class="strip" id="katalog">
+<div class="strip-head">
+  <div>
+    <span class="mono sec-sub">DROP ARCHIVE / 2026</span>
+    <h2>KATALOG RESMI</h2>
+  </div>
+  <p>Hanya di dsmd Jogja — verifikasi kode autentik di setiap tag.</p>
+</div>
+<div class="cats-dock" id="kategori">
+  <button type="button" class="cat-pill active" data-cat="all">Semua Drop</button>
+  <button type="button" class="cat-pill" data-cat="parka">Parka</button>
+  <button type="button" class="cat-pill" data-cat="tee">Tee</button>
+  <button type="button" class="cat-pill" data-cat="cargo">Cargo</button>
+  <button type="button" class="cat-pill" data-cat="aksesoris">Aksesoris</button>
+</div>
+<div class="grid" id="catalog-grid"></div>
 </section>
 <section class="excl" id="eksklusif">
 <div class="excl-inner">
@@ -51,11 +89,116 @@
 <p>Hitam menyerap. Putih memantulkan. DSMD hidup di antaranya — abstrak, kasar, jujur.</p>
 <a class="btn-solid dark" href="#katalog"><span>Beli Drop 001</span><i>↗</i></a>
 </section>
-<section class="cart" id="keranjang">
-<div class="cart-box"><h2>Keranjang</h2><p>2 item · Pengiriman dari <b>Jogja</b> · Ekspedisi JNE/J&T/GoSend</p><div class="row"><b>Total: Rp 1.339.000</b><a class="btn-small dark" href="#toko">Checkout</a></div></div>
-<div class="shop" id="toko"><img src="logo.png" alt="DSMD"><div><h3>DSMD Official — Jogja</h3><p>★ 4.9 · 2,1rb ulasan · 98% dibalas &lt; 1 jam · Aktif hari ini</p></div><a href="#katalog">Kunjungi Toko</a></div>
+<section class="shop-sec" id="toko">
+  <div class="shop-card">
+    <div class="shop-badge mono">OFFICIAL ATELIER · JOGJA</div>
+    <div class="shop-main">
+      <img src="logo.png" alt="DSMD Logo" class="shop-logo">
+      <div>
+        <h3>DSMD WORKSHOP & VAULT</h3>
+        <p>Tirtodipuran, Mantrijeron, Kota Yogyakarta, D.I. Yogyakarta 55143</p>
+        <div class="shop-stats mono">
+          <span>★ 4.97 (2.418 verified drops)</span>
+          <span>· Respon &lt; 5 mnt</span>
+          <span>· Ready Instant Delivery Jogja</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
-<footer><p>© 2026 DSMD® Jogja — Hanya dijual di situs ini.</p><p class="mono">JOGJA — ID</p></footer>
+<footer>
+  <div class="footer-left">
+    <p>© 2026 DSMD® Jogja — Hanya dijual di situs ini.</p>
+    <p class="mono sub-f">AUTHENTIC MONOCHROME APPAREL</p>
+  </div>
+  <p class="mono">JOGJA (7.7956° S, 110.3695° E) — ID</p>
+</footer>
 </main>
+
+<!-- Cart Drawer -->
+<div class="cart-drawer-backdrop" id="cart-drawer">
+  <div class="cart-drawer-panel">
+    <div class="drawer-header">
+      <div>
+        <h3 class="mono">KERANJANG BELANJA</h3>
+        <p class="drawer-sub">Pengiriman langsung dari Workshop Jogja</p>
+      </div>
+      <button type="button" class="btn-drawer-close" id="btn-close-cart">✕</button>
+    </div>
+    <div class="drawer-items" id="cart-drawer-items"></div>
+    <div class="drawer-footer">
+      <div class="drawer-total-row">
+        <span>TOTAL BELANJA</span>
+        <b id="cart-drawer-total">Rp 0</b>
+      </div>
+      <button type="button" class="btn-solid w-full" id="btn-checkout">
+        <span>Lanjut Checkout Resmi</span><i>↗</i>
+      </button>
+      <p class="drawer-note mono">Termasuk garansi NFC & sertifikat serial Jogja</p>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Modal -->
+<div class="admin-modal-backdrop" id="admin-modal">
+  <div class="admin-modal-panel">
+    <div class="admin-header">
+      <div>
+        <div class="admin-tag mono">DSMD CMS / INVENTORY LAB</div>
+        <h2>UPLOAD DROP PRODUK</h2>
+      </div>
+      <button type="button" class="btn-drawer-close" id="btn-close-admin">✕</button>
+    </div>
+    <form id="form-admin-product" class="admin-form">
+      <div class="form-row-2">
+        <div class="form-group">
+          <label for="adm-title">NAMA PRODUK</label>
+          <input type="text" id="adm-title" placeholder="Contoh: HYBRID BOMBER “ECLIPSE”" required>
+        </div>
+        <div class="form-group">
+          <label for="adm-cat">KATEGORI</label>
+          <select id="adm-cat">
+            <option value="parka">Parka / Outerwear</option>
+            <option value="tee">Abstract Tee</option>
+            <option value="cargo">Cargo Pants</option>
+            <option value="aksesoris">Aksesoris / Tech</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label for="adm-price">HARGA (RUPIAH)</label>
+          <input type="number" id="adm-price" placeholder="Contoh: 1450000" required>
+        </div>
+        <div class="form-group">
+          <label for="adm-stock">JUMLAH STOK / DROP</label>
+          <input type="text" id="adm-stock" placeholder="Contoh: 47 pcs limited">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="adm-tag">SPESIFIKASI & MATERIAL</label>
+        <input type="text" id="adm-tag" placeholder="Contoh: Nylon taslan / YKK waterproof zip / reflective">
+      </div>
+      <div class="form-group">
+        <label>FOTO PRODUK</label>
+        <label class="upload-dropzone" id="admin-img-preview" for="admin-file-input">
+          <div class="prev-ph">
+            <p>+ Klik / Geser Foto Produk Di Sini</p>
+            <span class="mono">Mendukung file gambar PNG, JPG, WEBP (Otomatis Base64)</span>
+          </div>
+        </label>
+        <input type="file" id="admin-file-input" accept="image/*" class="sr-only">
+      </div>
+      <div class="admin-submit-row">
+        <button type="submit" class="btn-solid dark w-full">
+          <span>Terbitkan Drop Ke Katalog</span><i>✓</i>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="dsmd-toast" id="dsmd-toast"></div>
+<script src="app.js"></script>
 </body>
 </html>
